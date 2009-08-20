@@ -96,8 +96,12 @@ struct _GabbleJingleSessionPrivate
   gboolean remote_hold;
   gboolean remote_ringing;
 
+  guint timer_id;
+
   gboolean dispose_has_run;
 };
+
+static guint session_timeout_time = 60000;
 
 typedef struct {
   JingleState state;
@@ -185,6 +189,7 @@ gabble_jingle_session_init (GabbleJingleSession *obj)
   priv->state = JS_STATE_PENDING_CREATED;
   priv->locally_accepted = FALSE;
   priv->locally_terminated = FALSE;
+  priv->timer_id = 0;
   priv->dispose_has_run = FALSE;
 }
 
@@ -204,6 +209,7 @@ gabble_jingle_session_dispose (GObject *object)
 
   g_assert ((priv->state == JS_STATE_PENDING_CREATED) ||
       (priv->state == JS_STATE_ENDED));
+  g_assert (priv->timer_id == 0);
 
   g_hash_table_destroy (priv->initiator_contents);
   priv->initiator_contents = NULL;
@@ -1806,6 +1812,19 @@ _on_accept_reply (GObject *sess_as_obj,
     }
 }
 
+static gboolean
+timeout_session (gpointer data)
+{
+  GabbleJingleSession *session = data;
+
+  DEBUG ("session timed out");
+  session->priv->timer_id = 0;
+
+  gabble_jingle_session_terminate (session,
+      TP_CHANNEL_GROUP_CHANGE_REASON_NO_ANSWER, NULL, NULL);
+  return FALSE;
+}
+
 static void
 try_session_initiate_or_accept (GabbleJingleSession *sess)
 {
@@ -1935,6 +1954,20 @@ set_state (GabbleJingleSession *sess,
       state >= JS_STATE_PENDING_INITIATED &&
       state < JS_STATE_ENDED)
     gabble_jingle_session_send_held (sess);
+
+  /* if we just initiated the session, set the session timer */
+  if (priv->local_initiator && (state == JS_STATE_PENDING_INITIATE_SENT))
+    {
+      g_assert (priv->timer_id == 0);
+      priv->timer_id = g_timeout_add (session_timeout_time,
+        timeout_session, sess);
+    }
+  /* if we're active or ended, we can clear the timer */
+  else if ((state >= JS_STATE_ACTIVE) && (priv->timer_id != 0))
+    {
+      g_source_remove (priv->timer_id);
+      priv->timer_id = 0;
+    }
 
   if (state == JS_STATE_ENDED)
     g_signal_emit (sess, signals[TERMINATED], 0, priv->locally_terminated,
