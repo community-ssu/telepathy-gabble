@@ -1,0 +1,52 @@
+Source: telepathy-gabble
+Section: net
+Priority: optional
+Maintainer: Dmitry Rozhkov <dmitry.rozhkov@nokia.com>
+XS-Debian-Maintainer: Debian Telepathy maintainers <pkg-telepathy-maintainers@lists.alioth.debian.org>
+XS-Debian-Uploaders: Dafydd Harries <daf@debian.org>,
+           Daniel Holbach <daniel.holbach@ubuntu.com>,
+           Laurent Bigonville <bigon@debian.org>,
+           Riccardo Setti <giskard@debian.org>,
+           Simon McVittie <smcv@debian.org>,
+           Sjoerd Simons <sjoerd@debian.org>
+Build-Depends: cdbs,
+               debhelper (>= 5),
+               libdbus-1-dev (>= 1.1),
+               libdbus-glib-1-dev (>= 0.78),
+               libglib2.0-dev (>= 2.16),
+               libloudmouth1-dev (>= 1.3.2),
+               libtelepathy-glib-dev (>= 0.7.34),
+               libsoup2.4-dev,
+               uuid-dev,
+               python2.5,
+               xsltproc,
+               autoconf,
+               automake1.9,
+               libtool
+Standards-Version: 3.8.0
+XS-Debian-Vcs-Git: git://git.debian.org/git/pkg-telepathy/telepathy-gabble.git
+XS-Debian-Vcs-Browser: http://git.debian.org/?p=pkg-telepathy/telepathy-gabble.git
+Homepage: http://telepathy.freedesktop.org/wiki/
+XS-Dm-Upload-Allowed: yes
+
+Package: telepathy-gabble
+Section: net
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Provides: telepathy-connection-manager
+Description: Jabber/XMPP connection manager
+ Gabble is a Jabber/XMPP connection manager for the Telepathy framework,
+ currently supporting single user chats, multi user chats and voice/video
+ calls. Install this package to use Telepathy instant messaging clients
+ with Jabber/XMPP servers, including Google Talk.
+
+Package: telepathy-gabble-dbg
+Section: net
+Priority: extra
+Architecture: any
+Depends: telepathy-gabble (= ${binary:Version})
+Description: Jabber/XMPP connection manager
+ Gabble is a Jabber/XMPP connection manager for the Telepathy framework,
+ currently supporting single user chats, multi user chats and voice/video
+ calls. Install this package to use Telepathy instant messaging clients
+ with Jabber/XMPP servers, including Google Talk.

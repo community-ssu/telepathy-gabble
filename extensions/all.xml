@@ -1,0 +1,96 @@
+<tp:spec
+  xmlns:tp="http://telepathy.freedesktop.org/wiki/DbusSpec#extensions-v0"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<tp:title>Gabble-specific extensions to the Telepathy interfaces</tp:title>
+
+<tp:copyright>Copyright (C) 2007 Collabora Limited</tp:copyright>
+
+<tp:license xmlns="http://www.w3.org/1999/xhtml">
+<p>This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.</p>
+
+<p>This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.</p>
+
+<p>You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA</p>
+</tp:license>
+
+<tp:generic-types>
+  <tp:external-type name="Room_Handle" type="u"
+    from="Telepathy specification"/>
+  <tp:external-type name="Handle_Type" type="u"
+    from="Telepathy specification"/>
+  <tp:external-type name="Contact_Handle" type="u"
+    from="Telepathy specification"/>
+  <tp:external-type name="DBus_Unique_Name" type="s"
+    from="Telepathy specification"/>
+</tp:generic-types>
+
+<xi:include href="Channel_Bundle.xml"/>
+<xi:include href="Channel_Future.xml"/>
+<xi:include href="Channel_Type_Streamed_Media_Future.xml"/>
+<xi:include href="Debug.xml"/>
+<xi:include href="OLPC_Buddy_Info.xml"/>
+<xi:include href="OLPC_Activity_Properties.xml"/>
+<xi:include href="OLPC_Gadget.xml"/>
+<xi:include href="OLPC_Channel_Interface_View.xml"/>
+<xi:include href="OLPC_Channel_Type_BuddyView.xml"/>
+<xi:include href="OLPC_Channel_Type_ActivityView.xml"/>
+
+<xi:include href="Connection_Interface_Contact_Capabilities.xml"/>
+
+<tp:generic-types>
+  <tp:external-type name="Contact_Handle" type="u"
+    from="Telepathy specification"/>
+  <tp:external-type name="DBus_Interface" type="s"
+    from="Telepathy specification"/>
+  <tp:external-type name="DBus_Qualified_Member" type="s"
+    from="Telepathy specification"/>
+  <tp:external-type name="Qualified_Property_Value_Map" type="a{sv}"
+    from="Telepathy specification"/>
+  <tp:external-type name="DBus_Error_Name" type="s"
+    from="Telepathy specification"/>
+
+  <!-- for localisation -->
+  <tp:external-type name="Rich_Presence_Access_Control_Type" type="u"
+    from="Telepathy specification"/>
+  <tp:external-type name="Rich_Presence_Access_Control" type="(uv)"
+    from="Telepathy specification"/>
+  <tp:external-type name="Unix_Timestamp64" type="t"
+    from="Telepathy specification"/>
+  <tp:external-type name="Unix_Timestamp" type="u"
+    from="Telepathy specification"/>
+  <tp:external-type name="String_String_Map" type="a{ss}"
+    from="Telepathy specification"/>
+
+  <tp:external-type name="String_Variant_Map" type="a{sv}"
+    from="Telepathy specification"/>
+
+  <!-- use types from Connection_Interface_Requests -->
+  <tp:external-type name="Channel_Class" type="a{sv}"
+    from="Telepathy specification"/>
+
+  <!-- use types from Channel_Type_Tubes -->
+  <tp:external-type name="Socket_Address_Type" type="u"
+    from="Telepathy specification"/>
+  <tp:external-type name="Socket_Access_Control" type="u"
+    from="Telepathy specification"/>
+  <tp:external-type name="Supported_Socket_Map" type="a{uau}"
+    from="Telepathy specification"/>
+  <tp:external-type name="DBus_Tube_Member" type="(us)"
+    from="Telepathy specification"/>
+
+  <!-- use types from Connection_Interface_Contact_Capabilities -->
+  <tp:external-type name="Requestable_Channel_Class" type="(a{sv}as)"
+    from="Telepathy specification"/>
+
+</tp:generic-types>
+
+</tp:spec>

@@ -1,0 +1,33 @@
+From c67da1ba903ebf174e538ca3f5cb3545d719b89c Mon Sep 17 00:00:00 2001
+From: Will Thompson <will.thompson@collabora.co.uk>
+Date: Fri, 21 Aug 2009 16:07:06 +0100
+Subject: [PATCH] Don't set the video-v1 bundle
+
+We don't want Fremantle to be callable by Google Video, since it doesn't
+work properly yet.
+---
+ src/connection.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/src/connection.c b/src/connection.c
+index fe9ce90..31ea820 100644
+--- a/src/connection.c
++++ b/src/connection.c
+@@ -1535,12 +1535,14 @@ _gabble_connection_signal_own_presence (GabbleConnection *self, GError **error)
+       if (presence->caps & PRESENCE_CAP_GOOGLE_VOICE)
+         g_string_append (ext, BUNDLE_VOICE_V1);
+ 
++#if 0
+       if (presence->caps & PRESENCE_CAP_GOOGLE_VIDEO)
+         {
+           if (ext->len > 0)
+             g_string_append_c (ext, ' ');
+           g_string_append (ext, BUNDLE_VIDEO_V1);
+         }
++#endif
+ 
+       lm_message_node_set_attribute (node, "ext", ext->str);
+ 
+-- 
+1.6.3.3
+
