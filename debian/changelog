@@ -1,16 +1,141 @@
-telepathy-gabble (0.8.1+3f2c10+fdbda83-0osso1+0m5) fremantle; urgency=low
+telepathy-gabble (0.8.8-0maemo1+0m5) fremantle; urgency=low
 
   * This entry has been added by BIFH queue processor
     Suffix +0m5 added to package revision
 
- -- reto zingg <reto.zingg@nokia.com>  Mon, 07 Sep 2009 18:58:32 +0300
+ -- reto zingg <reto.zingg@nokia.com>  Thu, 12 Nov 2009 13:25:34 +0200
 
-telepathy-gabble (0.8.1+3f2c10+fdbda83-0osso1) fremantle; urgency=low
+telepathy-gabble (0.8.8-0maemo1) fremantle; urgency=low
 
-  * Reduce disco timeout from 20000s to 20s. Fixes: NB#134134 (sometimes
-    call capability for VoIP accounts is lost).
+  * New upstream release 0.8.8.
+  * The StreamedMedia.ImmutableStreams property on channels may now take
+    values other than False.
+  * The default resource is now unique to the machine Gabble is running
+    on, rather than being randomly generated for each connection. Fixes
+    fd.o#23630: “Per-connection resource randomization increases the
+    window in which you lose messages”. Fixes: NB#135903 (Messages are
+    not received after changing connection type)
 
- -- Will Thompson <will.thompson@collabora.co.uk>  Fri, 04 Sep 2009 13:17:19 +0100
+ -- Will Thompson <will.thompson@collabora.co.uk>  Mon, 09 Nov 2009 18:11:38 +0000
+
+telepathy-gabble (0.8.7-0maemo1) fremantle; urgency=low
+
+  * New upstream release 0.8.7
+  * fd.o#24398: don't trust other people's message IDs to be as unique as ours.
+    Fixes: NB#138610 - Incoming messages are not visible
+
+ -- Simon McVittie <simon.mcvittie@collabora.co.uk>  Wed, 14 Oct 2009 14:44:41 +0100
+
+telepathy-gabble (0.8.6-0maemo1) fremantle; urgency=low
+
+  * New upstream release 0.8.6.
+  * telepathy-glib 0.7.37 or later is now required.
+  * The Immutable_Streams pseudo-capability and ImmutableStreams
+    property for Streamed Media channels, which indicate that video
+    cannot be added after an audio-only call has started, are now
+    implemented (primarily for Google Video Chat contacts).  UIs may use
+    these flags to determine whether to show separate “audio call” and
+    “video call” options, or a single “call” option, for example.
+  * The undrafted InitialAudio and InitialVideo properties are now
+    implemented (with the DRAFT variants still present and functional
+    for backwards-compatibility).
+  * Don't repeatedly request our own vCard when we don't have an avatar,
+    and fix an assertion. fd.o#23684.
+  * The connection process now times out after a minute if the server
+    stops responding. Fixes fd.o#24135. Fixes: NB#135866 (Presence keeps
+    on blinking forever when using WANO network)
+  * Don't wait for more capabilities if we already know a contact's
+    callable.
+  * We now remember what our own current and past capabilities hashes
+    mean, which prevents us unnecessarily discoing other Gabbles, and
+    works around an iChat bug where returning <item-not-found/> for a
+    disco request just makes it try again and again.
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Fri, 09 Oct 2009 12:44:25 +0100
+
+telepathy-gabble (0.8.5-0maemo1) fremantle; urgency=low
+
+  * New upstream releases 0.8.4 and 0.8.5, the latter fixing a
+    regression in 0.8.4.
+  * Jingle call interoperability with Pidgin and Gajim.
+    Fixes: NB#141483.
+  * When receiving a file, Gabble now closes the local socket once all
+    the data has been written.
+  * fd.o #24043: Doesn't parse candidates in a Jingle session-accept
+    stanza. This fix lets us interoperate with Pidgin's Jingle
+    implementation.
+  * fd.o #24023: Accepting initial streams for a call is racy.
+  * fd.o #20629: DBus events in tests should contain full path.
+  * fd.o #22795: jingle/google-relay.py is secretly made of cheese.
+  * fd.o #23903: Gabble crashes in File Transfer.
+  * fd.o #23685: build Gibber with fno-strict-aliasing so asyncns.c
+    builds with new GCC.
+  * fd.o #20565: Contacts should be initially offline and not unknown.
+    Fixes: NB#105037.
+  * When members are removed from a call due to a stream error, always
+    indicate so. References: NB#134426 (Missed call is registered as
+    Received call when caller's battery is removed.)
+  * Fix corner cases in SetLocation()'s language handling.
+    Fixes: NB#137278 (Fix potential NULL pointer usage)
+  * fd.o #24195: Doesn't think clients without google p2p tranport are
+    media capable. This fix lets us interoperate with Gajim's Jingle
+    implementation.
+  * Make stun-server.py not fail if the default STUN server hostname
+    can't be resolved.
+  * fd.o #23684: Gabble advertizes an avatar's sha1 in its presence
+    stanza without following XEP-0153.  Fixes: NB#135783 (One single
+    contact can make your device
+  * Honour errors that tell us to wait and try again when fetching
+    vCards.
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Fri, 02 Oct 2009 20:39:30 +0100
+
+telepathy-gabble (0.8.3-0maemo1) fremantle; urgency=low
+
+  * New upstream release 0.8.3.
+  * This release includes all of the fixes in 0.8.1+3f2c10+fdbda83-0osso1.
+  * fd.o #23681: Allow setting presence on a connection before it goes
+    online.  This avoids e.g. going from Available -> Busy immediately
+    when signing on. Fixes: NB#95112 (After changing presence from
+    Offline to Busy, presence is in Online mode for few seconds)
+  * fd.o #23684: fix handling of avatar conflict with several resources,
+    and a possible infinite ping-pong of presence stanzas from the
+    server. References: NB#135783 (One single contact can make your
+    device unusable)
+  * Time out disco requests after 20, not 20,000, seconds!
+    Fixes: NB#137573 (Gtalk calls doesn't get established after changing
+    the Access Point).
+  * Correctly respond to disco requests for video-v1 bundle, avoiding a
+    loop when iChat blindly retries failed disco requests
+  * Fix Requested and State properties of muc D-Bus tubes that we
+    previously created and are still present when we re-join the muc.
+    These tubes are now listed in Tubes.ListTubes(). fd.o #23678.
+  * Don't send the same disco request to the same (full) JID more than
+    once. fd.o #23841.
+  * Update the Jingle raw-udp and ice-udp namespaces we claim to support
+    to the current version.
+  * fd.o #23348, #23349: fix compilation on NetBSD by including more
+    headers
+  * fd.o #21327: force ISO date format in ChangeLog
+  * Reduce the size of the ChangeLog by truncating at version 0.6.0 and
+    not including diffstats (previously, the changelog.gz in our Debian
+    packages was larger than Gabble itself!)
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Thu, 10 Sep 2009 19:57:19 +0100
+
+telepathy-gabble (0.8.2-0osso2) fremantle; urgency=low
+
+  * New upstream release 0.8.2
+  * Improve jid validation, so that obviously-invalid jids are rejected.
+    While Gabble still doesn't do full nodeprep, but this will catch
+    most cases in practice.  Fixes: NB#103793 (Gabble should validate
+    JIDs with Nodeprep.)
+  * Fix parsing of incoming session accept from Google Video Chat. This
+    should make outgoing calls to Google Video Chat users work, as well
+    as incoming calls.
+  * Re-add Google Video capability for this development release.
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Fri, 04 Sep 2009 09:38:26 +0100
 
 telepathy-gabble (0.8.1+3f2c10-0osso1) fremantle; urgency=low
 

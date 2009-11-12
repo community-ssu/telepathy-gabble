@@ -4,10 +4,14 @@ TWISTED_TESTS = \
 	caps/advertise-draft1.py \
 	caps/advertise-legacy.py \
 	caps/caps-cache.py \
+	caps/compat-bundles.py \
+	caps/double-disco.py \
 	caps/from-bare-jid.py \
 	caps/hashed-caps.py \
 	caps/initial-caps.py \
+	caps/jingle-caps.py \
 	caps/receive-jingle.py \
+	caps/trust-thyself.py \
 	caps/tube-caps.py \
 	muc/name-conflict.py \
 	muc/renamed.py \
@@ -31,6 +35,8 @@ TWISTED_TESTS = \
 	olpc/gadget-publish.py \
 	olpc/gadget-restarted.py \
 	olpc/view-presence.py \
+	presence/initial-contact-presence.py \
+	presence/initial-presence.py \
 	presence/presence.py \
 	roster/ensure.py \
 	roster/groups.py \
@@ -80,6 +86,7 @@ TWISTED_TESTS = \
 	vcard/test-avatar.py \
 	vcard/test-avatar-retrieved.py \
 	vcard/test-avatar-tokens.py \
+        vcard/test-avatar-multiple-resources.py \
 	vcard/test-save-alias-to-vcard.py \
 	vcard/test-set-alias.py \
 	vcard/test-vcard-cache.py \
@@ -92,6 +99,7 @@ TWISTED_TESTS = \
 	jingle/hold-audio.py \
 	jingle/hold-av.py \
 	jingle/incoming-basics.py \
+	jingle/incoming-call-stream-error.py \
 	jingle/initial-audio-video.py \
 	jingle/misuse.py \
 	jingle/stun-server.py \
@@ -123,11 +131,11 @@ TWISTED_TESTS = \
 	file-transfer/test-send-file-to-unknown-contact.py \
 	file-transfer/test-send-file-wait-to-provide.py \
 	test-debug.py \
-	connect/multiple-times-to-same-account.py \
 	connect/test-fail.py \
 	connect/test-success.py \
 	connect/test-twice.py \
 	connect/test-nonblocking-tls.py \
+	connect/timeout.py \
 	test-disco.py \
 	test-disco-no-reply.py \
 	test-fallback-socks5-proxy.py \
@@ -183,6 +191,7 @@ EXTRA_DIST = \
 	config.py \
 	constants.py \
 	gabbletest.py \
+	httptest.py \
 	servicetest.py \
 	jingle/jingletest.py \
 	jingle/jingletest2.py \

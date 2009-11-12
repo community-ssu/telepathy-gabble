@@ -51,6 +51,9 @@ update_own_avatar_sha1 (GabbleConnection *conn,
   TpBaseConnection *base = (TpBaseConnection *) conn;
   GError *error = NULL;
 
+  /* sha1 can be "" if we know there is no avatar, but must not be NULL here */
+  g_assert (sha1 != NULL);
+
   if (!tp_strdiff (sha1, conn->self_presence->avatar_sha1))
     return TRUE;
 
@@ -77,23 +80,20 @@ update_own_avatar_sha1 (GabbleConnection *conn,
 static void
 connection_avatar_update_cb (GabblePresenceCache *cache,
                              TpHandle handle,
+                             const gchar *sha1,
                              gpointer user_data)
 {
   GabbleConnection *conn = GABBLE_CONNECTION (user_data);
   TpBaseConnection *base = (TpBaseConnection *) conn;
-  GabblePresence *presence;
 
-  presence = gabble_presence_cache_get (conn->presence_cache, handle);
-
-  g_assert (presence != NULL);
-
-  gabble_vcard_manager_invalidate_cache (conn->vcard_manager, handle);
+  /* sha1 can be "" if we know there is no avatar, but must not be NULL here */
+  g_assert (sha1 != NULL);
 
   if (handle == base->self_handle)
-    update_own_avatar_sha1 (conn, presence->avatar_sha1, NULL);
+    update_own_avatar_sha1 (conn, sha1, NULL);
   else
     tp_svc_connection_interface_avatars_emit_avatar_updated (conn,
-        handle, presence->avatar_sha1);
+        handle, sha1);
 }
 
 /* Called when our vCard is first fetched, so we can start putting the
@@ -104,6 +104,9 @@ connection_got_self_initial_avatar_cb (GObject *obj,
                                        gpointer user_data)
 {
   GabbleConnection *conn = GABBLE_CONNECTION (user_data);
+
+  /* sha1 can be "" if we know there is no avatar, but must not be NULL here */
+  g_assert (sha1 != NULL);
 
   update_own_avatar_sha1 (conn, sha1, NULL);
 }

@@ -6,6 +6,7 @@ Infrastructure code for testing connection managers.
 from twisted.internet import glib2reactor
 from twisted.internet.protocol import Protocol, Factory, ClientFactory
 glib2reactor.install()
+import sys
 
 import pprint
 import unittest
@@ -46,6 +47,15 @@ class EventPattern:
             del properties['predicate']
         self.properties = properties
 
+    def __repr__(self):
+        properties = dict(self.properties)
+
+        if self.predicate:
+            properties['predicate'] = self.predicate
+
+        return '%s(%r, **%r)' % (
+            self.__class__.__name__, self.type, properties)
+
     def match(self, event):
         if event.type != self.type:
             return False
@@ -85,6 +95,13 @@ class BaseEventQueue:
         if self.verbose:
             print s
 
+    def log_event(self, event):
+        if self.verbose:
+            self.log('got event:')
+
+            if self.verbose:
+                map(self.log, format_event(event))
+
     def forbid_events(self, patterns):
         """
         Add patterns (an iterable of EventPattern) to the set of forbidden
@@ -114,9 +131,7 @@ class BaseEventQueue:
 
         while True:
             event = self.wait()
-            self.log('got event:')
-            map(self.log, format_event(event))
-
+            self.log_event(event)
             self._check_forbidden(event)
 
             if pattern.match(event):
@@ -131,14 +146,20 @@ class BaseEventQueue:
         ret = [None] * len(patterns)
 
         while None in ret:
-            event = self.wait()
-            self.log('got event:')
-            map(self.log, format_event(event))
-
+            try:
+                event = self.wait()
+            except TimeoutError:
+                self.log('timeout')
+                self.log('still expecting:')
+                for i, pattern in enumerate(patterns):
+                    if ret[i] is None:
+                        self.log(' - %r' % pattern)
+                raise
+            self.log_event(event)
             self._check_forbidden(event)
 
             for i, pattern in enumerate(patterns):
-                if pattern.match(event):
+                if ret[i] is None and pattern.match(event):
                     self.log('handled')
                     self.log('')
                     ret[i] = event
@@ -153,8 +174,7 @@ class BaseEventQueue:
         pattern = EventPattern(type, **kw)
 
         event = self.wait()
-        self.log('got event:')
-        map(self.log, format_event(event))
+        self.log_event(event)
 
         if pattern.match(event):
             self.log('handled')
@@ -219,6 +239,16 @@ class EventQueueTest(unittest.TestCase):
         assert bar.type == 'bar'
         assert foo.type == 'foo'
 
+    def test_expect_many2(self):
+        # Test that events are only matched against patterns that haven't yet
+        # been matched. This tests a regression.
+        queue = TestEventQueue([Event('foo', x=1), Event('foo', x=2)])
+        foo1, foo2 = queue.expect_many(
+            EventPattern('foo'),
+            EventPattern('foo'))
+        assert foo1.type == 'foo' and foo1.x == 1
+        assert foo2.type == 'foo' and foo2.x == 2
+
     def test_timeout(self):
         queue = TestEventQueue([])
         self.assertRaises(TimeoutError, queue.expect, 'foo')
@@ -245,7 +275,10 @@ def unwrap(x):
     if isinstance(x, dict):
         return dict([(unwrap(k), unwrap(v)) for k, v in x.iteritems()])
 
-    for t in [unicode, str, long, int, float, bool]:
+    if isinstance(x, dbus.Boolean):
+        return bool(x)
+
+    for t in [unicode, str, long, int, float]:
         if isinstance(x, t):
             return t(x)
 
@@ -334,7 +367,7 @@ def make_connection(bus, event_func, name, proto, params):
         lambda *args, **kw:
             event_func(
                 Event('dbus-signal',
-                    path=unwrap(kw['path'])[len(tp_path_prefix):],
+                    path=unwrap(kw['path']),
                     signal=kw['member'], args=map(unwrap, args),
                     interface=kw['interface'])),
         None,       # signal name
@@ -409,21 +442,53 @@ def pretty(x):
     return pprint.pformat(unwrap(x))
 
 def assertEquals(expected, value):
-    assert expected == value, "expected:\n%s;\ngot:\n%s" % (
-        pretty(expected), pretty(value))
+    if expected != value:
+        raise AssertionError(
+            "expected:\n%s\ngot:\n%s" % (pretty(expected), pretty(value)))
+
+def assertNotEquals(expected, value):
+    if expected == value:
+        raise AssertionError(
+            "expected something other than:\n%s" % pretty(value))
 
 def assertContains(element, value):
-    assert element in value, "expected:\n%s\nin:\n%s" % (
-        pretty(element), pretty(value))
+    if element not in value:
+        raise AssertionError(
+            "expected:\n%s\nin:\n%s" % (pretty(element), pretty(value)))
 
 def assertDoesNotContain(element, value):
-    assert element not in value, "expected:\n%s\nnot in:\n%s" % (
-        pretty(element), pretty(value))
+    if element in value:
+        raise AssertionError(
+            "expected:\n%s\nnot in:\n%s" % (pretty(element), pretty(value)))
 
 def assertLength(length, value):
-    assert len(value) == length, \
-        "expected: length %d, got length %d:\n%s" % (
-        length, len(value), pretty(value))
+    if len(value) != length:
+        raise AssertionError("expected: length %d, got length %d:\n%s" % (
+            length, len(value), pretty(value)))
+
+def install_colourer():
+    def red(s):
+        return '\x1b[31m%s\x1b[0m' % s
+
+    def green(s):
+        return '\x1b[32m%s\x1b[0m' % s
+
+    patterns = {
+        'handled': green,
+        'not handled': red,
+        }
+
+    class Colourer:
+        def __init__(self, fh, patterns):
+            self.fh = fh
+            self.patterns = patterns
+
+        def write(self, s):
+            f = self.patterns.get(s, lambda x: x)
+            self.fh.write(f(s))
+
+    sys.stdout = Colourer(sys.stdout, patterns)
+    return sys.stdout
 
 if __name__ == '__main__':
     unittest.main()

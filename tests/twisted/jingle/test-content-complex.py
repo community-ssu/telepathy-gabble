@@ -4,8 +4,7 @@ Test everything related to contents
 
 from gabbletest import sync_stream
 from servicetest import (
-    make_channel_proxy, tp_path_prefix, assertEquals, EventPattern,
-    )
+    make_channel_proxy, assertEquals, EventPattern)
 import constants as cs
 from jingletest2 import (
     JingleTest2, JingleProtocol015, JingleProtocol031, test_dialects)
@@ -48,9 +47,9 @@ def worker(jp, q, bus, conn, stream):
              args=[u'', [], [], [self_handle], [], remote_handle,
                    cs.GC_REASON_INVITED])
 
-    media_chan = make_channel_proxy(conn, tp_path_prefix + e.path, 'Channel.Interface.Group')
-    signalling_iface = make_channel_proxy(conn, tp_path_prefix + e.path, 'Channel.Interface.MediaSignalling')
-    media_iface = make_channel_proxy(conn, tp_path_prefix + e.path, 'Channel.Type.StreamedMedia')
+    media_chan = make_channel_proxy(conn, e.path, 'Channel.Interface.Group')
+    signalling_iface = make_channel_proxy(conn, e.path, 'Channel.Interface.MediaSignalling')
+    media_iface = make_channel_proxy(conn, e.path, 'Channel.Type.StreamedMedia')
 
     # S-E gets notified about new session handler, and calls Ready on it
     e = q.expect('dbus-signal', signal='NewSessionHandler')
@@ -123,11 +122,10 @@ def worker(jp, q, bus, conn, stream):
     else:
         q.expect('stream-iq', iq_type='error')
 
-
     # Remote end then tries to create a content with a name it's already used
     node = jp.SetIq(jt2.peer, jt2.jid, [
         jp.Jingle(jt2.sid, jt2.peer, 'content-add', [
-            jp.Content('stream1', 'initiator', 'both', [
+            jp.Content(jt2.audio_names[0], 'initiator', 'both', [
                 jp.Description('audio', [
                     jp.PayloadType(name, str(rate), str(id)) for
                         (name, id, rate) in jt2.audio_codecs ]),

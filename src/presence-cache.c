@@ -20,6 +20,7 @@
 
 #include "config.h"
 #include "presence-cache.h"
+#include "vcard-manager.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -102,6 +103,9 @@ struct _GabblePresenceCachePrivate
    *     type depends on the key.
    */
   GHashTable *location;
+
+  /* Are we resetting the image hash as per XEP-0153 section 4.4 */
+  gboolean avatar_reset_pending;
 
   gboolean dispose_has_run;
 };
@@ -234,6 +238,12 @@ struct _CapabilityInfo
 
   TpIntSet *guys;
   guint trust;
+
+  /* TRUE if this cache entry is one of our own, so between caps and
+   * per_channel_manager_caps it holds the complete set of features for the
+   * node.
+   */
+  gboolean complete;
 };
 
 static CapabilityInfo *
@@ -361,7 +371,7 @@ gabble_presence_cache_class_init (GabblePresenceCacheClass *klass)
     G_SIGNAL_RUN_LAST,
     0,
     NULL, NULL,
-    g_cclosure_marshal_VOID__UINT, G_TYPE_NONE, 1, G_TYPE_UINT);
+    g_cclosure_marshal_VOID__UINT_POINTER, G_TYPE_NONE, 2, G_TYPE_UINT, G_TYPE_POINTER);
   signals[CAPABILITIES_DISCOVERED] = g_signal_new (
     "capabilities-discovered",
     G_TYPE_FROM_CLASS (klass),
@@ -639,16 +649,104 @@ _grab_nickname (GabblePresenceCache *cache,
 }
 
 static void
+self_vcard_request_cb (GabbleVCardManager *self,
+                       GabbleVCardManagerRequest *request,
+                       TpHandle handle,
+                       LmMessageNode *vcard,
+                       GError *error,
+                       gpointer user_data)
+{
+  GabblePresenceCache *cache = user_data;
+  GabblePresenceCachePrivate *priv = GABBLE_PRESENCE_CACHE_PRIV (cache);
+  gchar *sha1 = NULL;
+
+  priv->avatar_reset_pending = FALSE;
+
+  if (vcard != NULL)
+    {
+      sha1 = vcard_get_avatar_sha1 (vcard);
+
+      /* FIXME: presence->avatar_sha1 is resetted in
+       * self_avatar_resolve_conflict() and the following signal set it in
+       * conn-avatars.c. Doing that in 2 different files is confusing.
+       */
+      g_signal_emit (cache, signals[AVATAR_UPDATE], 0, handle, sha1);
+
+      g_free (sha1);
+    }
+  DEBUG ("End of avatar conflict resolution");
+}
+
+static void
+self_avatar_resolve_conflict (GabblePresenceCache *cache)
+{
+  GabblePresenceCachePrivate *priv = GABBLE_PRESENCE_CACHE_PRIV (cache);
+  TpBaseConnection *base_conn = (TpBaseConnection *) priv->conn;
+  GabblePresence *presence = priv->conn->self_presence;
+  GError *error = NULL;
+
+  /* We don't want recursive image resetting
+   *
+   * FIXME: There is a race here: if the other resource sends us first the
+   * hash 'hash1', and then 'hash2' while the vCard request generated for
+   * 'hash1' is still pending, the current code doesn't send a new vCard
+   * request, although it should because Gabble cannot know whether the reply
+   * will be for hash1 or hash2. The good solution would be to store the
+   * received hash and each time the hash is different, cancel the previous
+   * vCard request and send a new one. However, this is tricky, so we don't
+   * implement it.
+   *
+   * This race is not so bad: the only bad consequence is if the other Jabber
+   * client changes the avatar twice quickly, we may get only the first one.
+   * The real contacts should still get the last avatar.
+   */
+  if (priv->avatar_reset_pending)
+    {
+      DEBUG ("There is already an avatar conflict resolution pending.");
+      return;
+    }
+
+  /* according to XEP-0153 section 4.3-2. 3rd bullet:
+   * if we receive a photo from another resource, then we MUST
+   * immediately send a presence update with an empty update child
+   * element (no photo node), then re-download our own vCard;
+   * when that arrives, we may start setting the photo node in our
+   * presence again.
+   */
+  DEBUG ("Reset our avatar, signal our presence without an avatar and request"
+         " our own vCard.");
+  priv->avatar_reset_pending = TRUE;
+  g_free (presence->avatar_sha1);
+  presence->avatar_sha1 = NULL;
+  if (!_gabble_connection_signal_own_presence (priv->conn, &error))
+    {
+      DEBUG ("failed to send own presence: %s", error->message);
+      g_error_free (error);
+    }
+
+  gabble_vcard_manager_invalidate_cache (priv->conn->vcard_manager,
+      base_conn->self_handle);
+  gabble_vcard_manager_request (priv->conn->vcard_manager,
+      base_conn->self_handle, 0, self_vcard_request_cb, cache,
+      NULL);
+}
+
+static void
 _grab_avatar_sha1 (GabblePresenceCache *cache,
                    TpHandle handle,
                    const gchar *from,
                    LmMessageNode *node)
 {
+  GabblePresenceCachePrivate *priv = GABBLE_PRESENCE_CACHE_PRIV (cache);
+  TpBaseConnection *base_conn = (TpBaseConnection *) priv->conn;
   const gchar *sha1;
   LmMessageNode *x_node, *photo_node;
   GabblePresence *presence;
 
-  presence = gabble_presence_cache_get (cache, handle);
+  if (handle == base_conn->self_handle)
+    presence = priv->conn->self_presence;
+  else
+    presence = gabble_presence_cache_get (cache, handle);
 
   if (NULL == presence)
     return;
@@ -658,7 +756,7 @@ _grab_avatar_sha1 (GabblePresenceCache *cache,
 
   if (NULL == x_node)
     {
-      /* If (handle == priv->conn->parent.self_handle), then this means
+      /* If (handle == base_conn->self_handle), then this means
        * that one of our other resources does not support XEP-0153. According
        * to that XEP, we MUST now stop advertising the image hash, at least
        * until all instances of non-conforming resources have gone offline, by
@@ -684,23 +782,27 @@ _grab_avatar_sha1 (GabblePresenceCache *cache,
 
   sha1 = lm_message_node_get_value (photo_node);
 
+  /* "" means we know there is no avatar. NULL means we don't know what is the
+   * avatar. In this case, there is a <photo> node. */
+  if (sha1 == NULL)
+    sha1 = "";
+
   if (tp_strdiff (presence->avatar_sha1, sha1))
     {
-      g_free (presence->avatar_sha1);
-      presence->avatar_sha1 = g_strdup (sha1);
-
-      /* FIXME: according to XEP-0153,
-       * if (handle == priv->conn->parent.self_handle), then we MUST
-       * immediately send a presence update with an empty update child
-       * element (no photo node), then re-download our own vCard;
-       * when that arrives, we may start setting the photo node in our
-       * presence again.
-       *
-       * At the moment we ignore that requirement and trust that our other
-       * resource is getting its sha1 right - but it's a good policy to not
-       * trust anyone's XMPP implementation :-) */
-
-      g_signal_emit (cache, signals[AVATAR_UPDATE], 0, handle);
+      if (handle == base_conn->self_handle)
+        {
+          DEBUG ("Avatar conflict! Received hash '%s' and our cache is '%s'",
+            sha1, presence->avatar_sha1 == NULL ?
+              "<NULL>" : presence->avatar_sha1);
+          self_avatar_resolve_conflict (cache);
+        }
+      else
+        {
+          g_free (presence->avatar_sha1);
+          presence->avatar_sha1 = g_strdup (sha1);
+          gabble_vcard_manager_invalidate_cache (priv->conn->vcard_manager, handle);
+          g_signal_emit (cache, signals[AVATAR_UPDATE], 0, handle, sha1);
+        }
     }
 }
 
@@ -895,7 +997,8 @@ disco_failed (GabblePresenceCache *cache,
 
 static DiscoWaiter *
 find_matching_waiter (GSList *waiters,
-    TpHandle handle)
+    TpHandle godot,
+    const gchar *resource)
 {
   GSList *i;
 
@@ -903,7 +1006,7 @@ find_matching_waiter (GSList *waiters,
     {
       DiscoWaiter *waiter = i->data;
 
-      if (waiter->handle == handle)
+      if (waiter->handle == godot && !tp_strdiff (waiter->resource, resource))
         return waiter;
     }
 
@@ -1015,6 +1118,8 @@ _caps_disco_cb (GabbleDisco *disco,
   TpHandle handle = 0;
   gboolean bad_hash = FALSE;
   TpBaseConnection *base_conn;
+  gchar *resource;
+  gboolean jid_is_valid;
 
   cache = GABBLE_PRESENCE_CACHE (user_data);
   priv = GABBLE_PRESENCE_CACHE_PRIV (cache);
@@ -1047,11 +1152,15 @@ _caps_disco_cb (GabbleDisco *disco,
       return;
     }
 
-  waiter_self = find_matching_waiter (waiters, handle);
+  /* If tp_handle_ensure () was happy with the jid, it's valid. */
+  jid_is_valid = gabble_decode_jid (jid, NULL, NULL, &resource);
+  g_assert (jid_is_valid);
+  waiter_self = find_matching_waiter (waiters, handle, resource);
+  g_free (resource);
 
   if (NULL == waiter_self)
     {
-      DEBUG ("Ignoring non requested disco reply");
+      DEBUG ("Ignoring non requested disco reply from %s", jid);
       goto OUT;
     }
 
@@ -1197,43 +1306,54 @@ _process_caps_uri (GabblePresenceCache *cache,
     }
   else
     {
-      /* Append the (handle, resource) pair to the list of such pairs
-       * waiting for capabilities for this uri, and send a disco request
-       * if we don't have enough possible trust yet */
-
       GSList *waiters;
       DiscoWaiter *waiter;
       guint possible_trust;
+      gboolean found;
       gpointer key;
       gpointer value = NULL;
 
       DEBUG ("not enough trust for URI %s", uri);
 
-      /* If the URI is in the hash table, steal it and its value; we can
-       * reuse the same URI for the following insertion. Otherwise, make a
-       * copy of the URI for use as a key.
-       */
-
-      if (g_hash_table_lookup_extended (priv->disco_pending, uri, &key,
-            &value))
-        {
-          g_hash_table_steal (priv->disco_pending, key);
-        }
-      else
-        {
-          key = g_strdup (uri);
-        }
-
+      /* Are we already waiting for responses for this URI? */
+      found = g_hash_table_lookup_extended (priv->disco_pending, uri, &key,
+          &value);
       waiters = (GSList *) value;
+
+      waiter = find_matching_waiter (waiters, handle, resource);
+
+      if (waiter != NULL)
+        {
+          /* We've already asked this jid about this node; just update the
+           * serial.
+           */
+          DEBUG ("updating serial for waiter (%s, %s) from %u to %u",
+              from, uri, waiter->serial, serial);
+          waiter->serial = serial;
+          return;
+        }
+
       waiter = disco_waiter_new (contact_repo, handle, resource,
           hash, ver, serial);
       waiters = g_slist_prepend (waiters, waiter);
+
+      /* If the URI was already in the hash table, steal it and re-use the same
+       * URI for the following insertion. Otherwise, make a copy of the URI for
+       * use as a key.
+       */
+      if (found)
+        g_hash_table_steal (priv->disco_pending, key);
+      else
+        key = g_strdup (uri);
+
       g_hash_table_insert (priv->disco_pending, key, waiters);
 
+      /* When all the responses we're waiting for return, will we have enough
+       * trust?
+       */
       possible_trust = disco_waiter_list_get_request_count (waiters);
 
-      if (!value
-          || info->trust + possible_trust < CAPABILITY_BUNDLE_ENOUGH_TRUST)
+      if (info->trust + possible_trust < CAPABILITY_BUNDLE_ENOUGH_TRUST)
         {
           /* DISCO */
           DEBUG ("only %u trust out of %u possible thus far, sending "
@@ -1313,10 +1433,23 @@ _parse_presence_message (GabblePresenceCache *cache,
   GabblePresenceCachePrivate *priv = GABBLE_PRESENCE_CACHE_PRIV (cache);
   gint8 priority = 0;
   const gchar *resource, *status_message = NULL;
+  gchar *my_full_jid;
   LmMessageNode *presence_node, *child_node;
   LmHandlerResult ret = LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
   GabblePresenceId presence_id;
   GabblePresence *presence;
+
+  /* The server should not send back the presence stanza about ourself (same
+   * resource). If it does, we just ignore the received stanza. We want to
+   * avoid any infinite ping-pong with the server due to XEP-0153 4.2-2-3.
+   */
+  my_full_jid = gabble_connection_get_full_jid (priv->conn);
+  if (!tp_strdiff (from, my_full_jid))
+    {
+      g_free (my_full_jid);
+      return LM_HANDLER_RESULT_REMOVE_MESSAGE;
+    }
+  g_free (my_full_jid);
 
   presence_node = message->node;
   g_assert (0 == strcmp (presence_node->name, "presence"));
@@ -1670,6 +1803,86 @@ void gabble_presence_cache_add_bundle_caps (GabblePresenceCache *cache,
   info = capability_info_get (cache, node);
   info->trust = CAPABILITY_BUNDLE_ENOUGH_TRUST;
   info->caps |= new_caps;
+}
+
+void
+gabble_presence_cache_add_own_caps (
+    GabblePresenceCache *cache,
+    const gchar *ver,
+    GabblePresenceCapabilities caps,
+    GHashTable *contact_caps)
+{
+  gchar *uri = g_strdup_printf ("%s#%s", NS_GABBLE_CAPS, ver);
+  CapabilityInfo *info = capability_info_get (cache, uri);
+  GHashTable *copy = NULL;
+
+  if (info->complete)
+    goto out;
+
+  DEBUG ("caching our own caps (%s)", uri);
+
+  /* If this node was already in the cache but not labelled as complete, either
+   * the entry's correct, or someone's poisoning us with a SHA-1 collision.
+   * Let's update the entry just in case.
+   */
+  info->caps_set = TRUE;
+  info->complete = TRUE;
+  info->trust = CAPABILITY_BUNDLE_ENOUGH_TRUST;
+  info->caps = caps;
+  tp_intset_add (info->guys, cache->priv->conn->parent.self_handle);
+
+  if (contact_caps != NULL)
+    gabble_presence_cache_copy_cache_entry (&copy, contact_caps);
+
+  gabble_presence_cache_free_cache_entry (info->per_channel_manager_caps);
+  info->per_channel_manager_caps = copy;
+
+  /* FIXME: we should satisfy any waiters for this node now, but I think that
+   * can wait till 0.9.
+   */
+
+out:
+  g_free (uri);
+}
+
+/**
+ * gabble_presence_cache_peek_own_caps:
+ * @cache: a presence cache
+ * @ver: a verification string or bundle name
+ * @caps: location at which to store caps for @ver
+ * @contact_caps: location at which to store contact caps for @ver
+ *
+ * If the capabilities corresponding to @ver have been added to the cache with
+ * gabble_presence_cache_add_own_caps(), sets @caps and @contact_caps and
+ * returns %TRUE; otherwise, returns %FALSE.
+ *
+ * Since the cache only records features Gabble understands (omitting unknown
+ * features, identities, and data forms), we can only serve up disco replies
+ * from the cache if we know we once advertised exactly this verification
+ * string ourselves.
+ *
+ * Returns: %TRUE if we know exactly what @ver means.
+ */
+gboolean
+gabble_presence_cache_peek_own_caps (
+    GabblePresenceCache *cache,
+    const gchar *ver,
+    GabblePresenceCapabilities *caps,
+    GHashTable **contact_caps)
+{
+  gchar *uri = g_strdup_printf ("%s#%s", NS_GABBLE_CAPS, ver);
+  CapabilityInfo *info = capability_info_get (cache, uri);
+  gboolean ret = FALSE;
+
+  if (info->complete)
+    {
+      *caps = info->caps;
+      *contact_caps = info->per_channel_manager_caps;
+      ret = TRUE;
+    }
+
+  g_free (uri);
+  return ret;
 }
 
 void

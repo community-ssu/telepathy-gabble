@@ -161,6 +161,7 @@ struct _GabbleTubeDBusPrivate
    * incoming tubes, always TRUE.
    */
   gboolean offered;
+  gboolean requested;
 
   /* our unique D-Bus name on the virtual tube bus (NULL for 1-1 D-Bus tubes)*/
   gchar *dbus_local_name;
@@ -755,8 +756,7 @@ gabble_tube_dbus_get_property (GObject *object,
         }
         break;
       case PROP_REQUESTED:
-        g_value_set_boolean (value,
-            (priv->initiator == priv->self_handle));
+        g_value_set_boolean (value, priv->requested);
         break;
       case PROP_INITIATOR_ID:
           {
@@ -863,6 +863,9 @@ gabble_tube_dbus_set_property (GObject *object,
       case PROP_MUC:
         priv->muc = g_value_get_object (value);
         break;
+      case PROP_REQUESTED:
+        priv->requested = g_value_get_boolean (value);
+        break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
         break;
@@ -908,8 +911,7 @@ gabble_tube_dbus_constructor (GType type,
   g_assert (priv->self_handle != 0);
   if (priv->handle_type == TP_HANDLE_TYPE_ROOM)
     {
-      /*
-       * We have to create a pseudo-IBB bytestream that will be
+      /* We have to create a pseudo-IBB bytestream that will be
        * used by this MUC tube to communicate.
        */
       GabbleBytestreamMuc *bytestream;
@@ -920,8 +922,10 @@ gabble_tube_dbus_constructor (GType type,
       priv->dbus_name_to_handle = g_hash_table_new_full (g_str_hash,
          g_str_equal, NULL, NULL);
 
-      gabble_decode_jid (tp_handle_inspect (contact_repo, priv->self_handle),
-          NULL, NULL, &nick);
+      g_assert (gabble_decode_jid (
+          tp_handle_inspect (contact_repo, priv->self_handle),
+          NULL, NULL, &nick));
+      g_assert (nick != NULL);
 
       priv->dbus_local_name = _gabble_generate_dbus_unique_name (nick);
 
@@ -953,7 +957,12 @@ gabble_tube_dbus_constructor (GType type,
       g_assert (priv->muc == NULL);
     }
 
-  if (priv->initiator == priv->self_handle)
+  /* Tube needs to be offered if we initiated AND requested it. Being
+   * the initiator is not enough as we could re-join a muc containing and old
+   * tube we created when we were in this room some time ago. In that case, we
+   * have to accept it if we want to re-join the tube. */
+  if (priv->initiator == priv->self_handle &&
+      priv->requested)
     {
       priv->offered = FALSE;
     }
@@ -1137,7 +1146,7 @@ gabble_tube_dbus_class_init (GabbleTubeDBusClass *gabble_tube_dbus_class)
   param_spec = g_param_spec_boolean ("requested", "Requested?",
       "True if this channel was requested by the local user",
       FALSE,
-      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
   g_object_class_install_property (object_class, PROP_REQUESTED, param_spec);
 
   param_spec = g_param_spec_object ("muc", "GabbleMucChannel object",
@@ -1532,7 +1541,8 @@ gabble_tube_dbus_new (GabbleConnection *conn,
                       const gchar *stream_id,
                       guint id,
                       GabbleBytestreamIface *bytestream,
-                      GabbleMucChannel *muc)
+                      GabbleMucChannel *muc,
+                      gboolean requested)
 {
   GabbleTubeDBus *tube;
   gchar *object_path;
@@ -1552,6 +1562,7 @@ gabble_tube_dbus_new (GabbleConnection *conn,
       "stream-id", stream_id,
       "id", id,
       "muc", muc,
+      "requested", requested,
       NULL);
 
   if (bytestream != NULL)
@@ -1680,7 +1691,7 @@ gabble_tube_dbus_add_name (GabbleTubeDBus *self,
       const gchar *jid;
 
       jid = tp_handle_inspect (contact_repo, handle);
-      gabble_decode_jid (jid, NULL, NULL, &nick);
+      g_assert (gabble_decode_jid (jid, NULL, NULL, &nick));
       supposed_name = _gabble_generate_dbus_unique_name (nick);
       g_free (nick);
 

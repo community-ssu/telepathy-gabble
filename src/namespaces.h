@@ -24,7 +24,6 @@
 #define NS_AMP                  "http://jabber.org/protocol/amp"
 #define NS_BYTESTREAMS          "http://jabber.org/protocol/bytestreams"
 #define NS_CAPS                 "http://jabber.org/protocol/caps"
-#define NS_DATA                 "jabber:x:data"
 #define NS_CHAT_STATES          "http://jabber.org/protocol/chatstates"
 #define NS_DISCO_INFO           "http://jabber.org/protocol/disco#info"
 #define NS_DISCO_ITEMS          "http://jabber.org/protocol/disco#items"
@@ -73,9 +72,9 @@
 /* google-p2p transport */
 #define NS_GOOGLE_TRANSPORT_P2P "http://www.google.com/transport/p2p"
 /* Jingle RAW-UDP transport */
-#define NS_JINGLE_TRANSPORT_RAWUDP "urn:xmpp:jingle:transports:raw-udp:0"
+#define NS_JINGLE_TRANSPORT_RAWUDP "urn:xmpp:jingle:transports:raw-udp:1"
 /* Jingle ICE-UDP transport */
-#define NS_JINGLE_TRANSPORT_ICEUDP "urn:xmpp:jingle:transports:ice-udp:0"
+#define NS_JINGLE_TRANSPORT_ICEUDP "urn:xmpp:jingle:transports:ice-udp:1"
 
 #define NS_MUC                  "http://jabber.org/protocol/muc"
 #define NS_MUC_BYTESTREAM       "http://telepathy.freedesktop.org/xmpp/protocol/muc-bytestream"

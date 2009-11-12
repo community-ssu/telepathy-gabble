@@ -4,10 +4,11 @@ exposing the initial contents of incoming calls as values of InitialAudio and
 InitialVideo
 """
 
+import operator
+
 from servicetest import (
     assertContains, assertEquals, assertLength,
-    wrap_channel, EventPattern, call_async, make_channel_proxy,
-    )
+    wrap_channel, EventPattern, call_async, make_channel_proxy)
 
 from jingletest2 import JingleTest2, test_all_dialects
 
@@ -131,6 +132,15 @@ def check_iav(jt, q, conn, bus, stream, remote_handle, initial_audio,
             predicate=jt.jp.action_predicate('session-initiate'))
         jt.parse_session_initiate (e.query)
 
+        jt.accept()
+
+        events = reduce(operator.concat,
+            [ [ EventPattern('dbus-signal', signal='SetRemoteCodecs', path=p),
+                EventPattern('dbus-signal', signal='SetStreamPlaying', path=p),
+              ] for p in stream_handler_paths
+            ], [])
+        q.expect_many(*events)
+
         chan.Close()
 
 def incoming(jp, q, bus, conn, stream):
@@ -157,6 +167,12 @@ def incoming(jp, q, bus, conn, stream):
         assertEquals(cs.CHANNEL_TYPE_STREAMED_MEDIA, props[cs.CHANNEL_TYPE])
         assertEquals(a, props[cs.INITIAL_AUDIO])
         assertEquals(v, props[cs.INITIAL_VIDEO])
+
+        # FIXME: This doesn't check non-Google contacts that can only do one
+        # media type, as such contacts as simulated by JingleTest2 can always
+        # do both.
+        assertEquals(not jp.can_do_video() or not jp.can_do_video_only(),
+            props[cs.IMMUTABLE_STREAMS])
 
         chan = wrap_channel(bus.get_object(conn.bus_name, path),
             cs.CHANNEL_TYPE_STREAMED_MEDIA)

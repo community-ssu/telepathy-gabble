@@ -1,3 +1,195 @@
+telepathy-gabble 0.8.8 (2009-11-09)
+===================================
+
+The “Juice, toast, milk: an unholy trinity of cruel denial” release.
+
+Fixes:
+
+• The StreamedMedia.ImmutableStreams property on channels may now take
+  values other than False. (wjt)
+
+• The default resource is now unique to the machine Gabble is running
+  on, rather than being randomly generated for each connection. Fixes
+  fd.o#23630: “Per-connection resource randomization increases the
+  window in which you lose messages”. (wjt)
+
+telepathy-gabble 0.8.7 (2009-10-14)
+===================================
+
+The "unpleasant grinding noise" release.
+
+Fixes:
+
+• Don't trust other people's <message/> IDs to be globally unique: in
+  particular, Google Talk uses simple incrementing integers (wjt)
+
+• Use the correct marshaller for the pre-presence signal, fixing a crash on
+  64-bit platforms (wjt)
+
+telepathy-gabble 0.8.6 (2009-10-09)
+===================================
+
+The “two eggs, half a cup of flour, four tons of beef, and a leek” release.
+
+Dependencies:
+
+• telepathy-glib 0.7.37 or later is now required.
+
+Enhancements:
+
+• The Immutable_Streams pseudo-capability and ImmutableStreams property for
+  Streamed Media channels, which indicate that video cannot be added after an
+  audio-only call has started, are now implemented (primarily for Google Video
+  Chat contacts).  UIs may use these flags to determine whether to show
+  separate “audio call” and “video call” options, or a single “call” option,
+  for example. (Will)
+
+• The undrafted InitialAudio and InitialVideo properties are now implemented
+  (with the DRAFT variants still present and functional for
+  backwards-compatibility). (Will)
+
+Fixes:
+
+• Don't repeatedly request our own vCard when we don't have an avatar, and fix
+  an assertion. fd.o#23684 (Alban)
+
+• The connection process now times out after a minute if the server stops
+  responding. Fixes fd.o#24135 (Will)
+
+• Don't wait for more capabilities if we already know a contact's callable.
+  (Will)
+
+• We now remember what our own current and past capabilities hashes mean, which
+  prevents us unnecessarily discoing other Gabbles, and works around an iChat
+  bug where returning <item-not-found/> for a disco request just makes it try
+  again and again. (Will)
+
+telepathy-gabble 0.8.5 (2009-10-02)
+===================================
+
+The “a page out of Remembrance of Things Past and a blowtorch with which
+to set it on fire” release.
+
+Fixes:
+
+* Don't re-fetch our own avatar in a loop when connecting to Google
+  Talk. This should fix #23684 once and for all. (Alban)
+
+* Fix a crash introduced by the vCard-related fixes in 0.8.4. (Alban)
+
+telepathy-gabble 0.8.4 (2009-09-25)
+===================================
+
+The “bourgeois traditional omelette form” release.
+
+Highlights:
+
+* Jingle call interoperability with Pidgin and Gajim.
+
+Fixes:
+
+* When receiving a file, Gabble now closes the local socket once all the data
+  has been written. (Guillaume)
+
+* fd.o #24043: Doesn't parse candidates in a Jingle session-accept stanza
+  This fix lets us interoperate with Pidgin's Jingle implementation. (Sjoerd,
+  David)
+
+* fd.o #24023: Accepting initial streams for a call is racy. (Sjoerd, Daf)
+
+* fd.o #20629: DBus events in tests should contain full path. (Daf)
+
+* fd.o #22795: jingle/google-relay.py is secretly made of cheese. (Daf)
+
+* fd.o #23903: Gabble crashes in File Transfer. (Guillaume)
+
+* fd.o #23685: build Gibber with fno-strict-aliasing so asyncns.c builds with
+  new GCC. (Guillaume)
+
+* fd.o #20565: Contacts should be initially offline and not unknown. (Daf)
+
+* When members are removed from a call due to a stream error, always indicate
+  so. (Daf)
+
+* Fix corner cases in SetLocation()'s language handling. (Daf)
+
+* fd.o #24195: Doesn't think clients without google p2p tranport are media
+  capable. This fix lets us interoperate with Gajim's Jingle implementation.
+  (Sjoerd, Daf)
+
+* Make stun-server.py not fail if the default STUN server hostname can't be
+  resolved. (David)
+
+* fd.o #23684: Gabble advertizes an avatar's sha1 in its presence stanza
+  without following XEP-0153. (Alban)
+
+* Honour errors that tell us to wait and try again when fetching vCards.
+  (Alban)
+
+telepathy-gabble 0.8.3 (2009-09-10)
+===================================
+
+The “one cigarette, some coffee, and four tiny stones” release.
+
+Enhancements:
+
+* fd.o #23681: Allow setting presence on a connection before it goes online.
+  This avoids e.g. going from Available -> Busy immediately when signing on.
+  (daf)
+
+Fixes:
+
+* fd.o #23684: fix handling of avatar conflict with several resources, and
+  a possible infinite ping-pong of presence stanzas from the server (albanc)
+
+* Time out disco requests after 20, not 20,000, seconds! (grundleborg)
+
+* Correctly respond to disco requests for video-v1 bundle, avoiding a loop
+  when iChat blindly retries failed disco requests (smcv)
+
+* Fix Requested and State properties of muc D-Bus tubes that we previously
+  created and are still present when we re-join the muc. These tubes are now
+  listed in Tubes.ListTubes(). fd.o #23678. (cassidy)
+
+* Don't send the same disco request to the same (full) JID more than once. fd.o
+  #23841. (wjt)
+
+* Update the Jingle raw-udp and ice-udp namespaces we claim to support to the
+  current version. (wjt)
+
+* fd.o #23348, #23349: fix compilation on NetBSD by including more headers
+  (Thomas Klausner)
+
+* fd.o #21327: force ISO date format in ChangeLog (wjt)
+
+* Reduce the size of the ChangeLog by truncating at version 0.6.0 and not
+  including diffstats (previously, the changelog.gz in our Debian packages
+  was larger than Gabble itself!) (smcv)
+
+telepathy-gabble 0.8.2 (2009-09-03)
+===================================
+
+The “tape two fried eggs over your eyes and walk the streets of Paris for an
+hour” release.
+
+Enhancements:
+
+* Improve jid validation, so that obviously-invalid jids are rejected.
+  (daf)
+
+Fixes:
+
+* Don't crash when a vCard set fails, and there are edits pending. This
+  can happen if you're trying to set your avatar and then disconnect.
+  (daf)
+
+* fd.o#23013: ContactCapabilities.SetSelfCapabilities can crash gabble
+  with wrong parms (sjoerd)
+
+* Fix parsing of incoming session accept from Google Video Chat. This
+  should make outgoing calls to Google Video Chat users work, as well as
+  incoming calls. Hooray! (wjt, with help from sjoerd and Olivier Crête)
+
 telepathy-gabble 0.8.1 (2009-08-20)
 ===================================
 

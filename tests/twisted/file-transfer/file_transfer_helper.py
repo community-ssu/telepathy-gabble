@@ -43,6 +43,7 @@ class File(object):
 
 class FileTransferTest(object):
     CONTACT_NAME = 'test-ft@localhost'
+    CONTACT_FULL_JID = 'test-ft@localhost/Telepathy'
 
     def __init__(self, bytestream_cls, file, address_type, access_control, access_control_param):
         self.file = file
@@ -65,7 +66,7 @@ class FileTransferTest(object):
         roster = make_result_iq(self.stream, roster_event.stanza)
         query = roster.firstChildElement()
         item = query.addElement('item')
-        item['jid'] = self.CONTACT_NAME
+        item['jid'] = self.CONTACT_FULL_JID
         item['subscription'] = 'both'
         self.stream.send(roster)
 
@@ -91,7 +92,8 @@ class FileTransferTest(object):
         disco_event, presence_event = self.q.expect_many(
             EventPattern('stream-iq', iq_type='get',
                 query_ns='http://jabber.org/protocol/disco#info', to=self.contact_full_jid),
-            EventPattern('dbus-signal', signal='PresencesChanged'))
+            EventPattern('dbus-signal', signal='PresencesChanged', args=[
+                {self.handle: (cs.PRESENCE_AVAILABLE, u'available', u'')}]))
 
         assert disco_event.query['node'] == \
             'http://example.com/ISupportFT#1.0'
@@ -100,9 +102,6 @@ class FileTransferTest(object):
         feature = query.addElement('feature')
         feature['var'] = ns.FILE_TRANSFER
         self.stream.send(result)
-
-        h = presence_event.args[0].keys()[0]
-        assert h == self.handle
 
         sync_stream(self.q, self.stream)
 
@@ -150,7 +149,7 @@ class ReceiveFileTest(FileTransferTest):
 
     def send_ft_offer_iq(self):
         self.bytestream = self.bytestream_cls(self.stream, self.q, 'alpha',
-            self.contact_name, 'test@localhost/Resource', True)
+            self.contact_full_jid, 'test@localhost/Resource', True)
 
         iq, si = self.bytestream.create_si_offer(ns.FILE_TRANSFER)
 
@@ -260,9 +259,11 @@ class ReceiveFileTest(FileTransferTest):
         e = self.q.expect('dbus-signal', signal='TransferredBytesChanged')
         count = e.args[0]
 
-        while read < to_receive:
-            data += s.recv(to_receive - read)
-            read = len(data)
+        while True:
+            received = s.recv(1024)
+            if len(received) == 0:
+                break
+            data += received
         assert data == self.file.data[self.file.offset:]
 
         while count < to_receive:

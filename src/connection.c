@@ -75,8 +75,7 @@
 #include "vcard-manager.h"
 
 static guint disco_reply_timeout = 5;
-
-#define DEFAULT_RESOURCE_FORMAT "Telepathy.%x"
+static guint connect_timeout = 60;
 
 static void conn_service_iface_init (gpointer, gpointer);
 static void capabilities_service_iface_init (gpointer, gpointer);
@@ -168,6 +167,8 @@ struct _GabbleConnectionPrivate
   TpConnectionStatusReason ssl_error;
 
   gboolean do_register;
+
+  guint connect_timeout_id;
 
   gboolean low_bandwidth;
 
@@ -319,6 +320,29 @@ gabble_connection_constructor (GType type,
   return (GObject *) self;
 }
 
+static gchar *
+dup_default_resource (void)
+{
+  /* This is a once-per-process leak. */
+  static gchar *default_resource = NULL;
+
+  if (G_UNLIKELY (default_resource == NULL))
+    {
+      char *local_machine_id = dbus_get_local_machine_id ();
+
+      if (local_machine_id == NULL)
+        g_error ("Out of memory getting local machine ID");
+
+      default_resource = sha1_hex (local_machine_id, strlen (local_machine_id));
+      /* Let's keep the resource a maneagable length. */
+      default_resource[8] = '\0';
+
+      dbus_free (local_machine_id);
+    }
+
+  return g_strdup (default_resource);
+}
+
 static void
 gabble_connection_constructed (GObject *object)
 {
@@ -332,10 +356,15 @@ gabble_connection_constructed (GObject *object)
 
   if (priv->resource == NULL)
     {
-      priv->resource = g_strdup_printf (DEFAULT_RESOURCE_FORMAT,
-          g_random_int ());
+      priv->resource = dup_default_resource ();
       DEBUG ("defaulted resource to %s", priv->resource);
     }
+
+  /* set initial presence */
+  self->self_presence = gabble_presence_new ();
+  g_assert (priv->resource);
+  gabble_presence_update (self->self_presence, priv->resource,
+      GABBLE_PRESENCE_AVAILABLE, NULL, priv->priority);
 }
 
 static void
@@ -480,8 +509,23 @@ gabble_connection_set_property (GObject      *object,
       priv->password = g_value_dup_string (value);
       break;
     case PROP_RESOURCE:
-      g_free (priv->resource);
-      priv->resource = g_value_dup_string (value);
+      if (tp_strdiff (priv->resource, g_value_get_string (value)))
+        {
+          gchar *old_resource = g_strdup (priv->resource);
+          gchar *new_resource = g_value_dup_string (value);
+
+          priv->resource = new_resource;
+
+          /* Add self presence for new resource... */
+          gabble_presence_update (self->self_presence, new_resource,
+              self->self_presence->status, self->self_presence->status_message,
+              priv->priority);
+          /* ...and remove it for the old one. */
+          gabble_presence_update (self->self_presence, old_resource,
+              GABBLE_PRESENCE_OFFLINE, NULL, 0);
+
+          g_free (old_resource);
+        }
       break;
     case PROP_PRIORITY:
       priv->priority = g_value_get_char (value);
@@ -545,10 +589,8 @@ gabble_connection_get_unique_name (TpBaseConnection *self)
 {
   GabbleConnectionPrivate *priv = GABBLE_CONNECTION (self)->priv;
 
-  return g_strdup_printf ("%s@%s/%s",
-                          priv->username,
-                          priv->stream_server,
-                          priv->resource);
+  return gabble_encode_jid (
+      priv->username, priv->stream_server, priv->resource);
 }
 
 /* must be in the same order as GabbleListHandle in connection.h */
@@ -845,6 +887,16 @@ _unref_lm_connection (gpointer data)
 }
 
 static void
+cancel_connect_timeout (GabbleConnection *conn)
+{
+  if (conn->priv->connect_timeout_id != 0)
+    {
+      g_source_remove (conn->priv->connect_timeout_id);
+      conn->priv->connect_timeout_id = 0;
+    }
+}
+
+static void
 gabble_connection_dispose (GObject *object)
 {
   GabbleConnection *self = GABBLE_CONNECTION (object);
@@ -860,6 +912,11 @@ gabble_connection_dispose (GObject *object)
 
   g_assert ((base->status == TP_CONNECTION_STATUS_DISCONNECTED) ||
             (base->status == TP_INTERNAL_CONNECTION_STATUS_NEW));
+
+  /* By the time we get here, this should have fired or been cancelled long
+   * ago. But just to be sure...
+   */
+  cancel_connect_timeout (self);
 
   g_object_unref (self->bytestream_factory);
   self->bytestream_factory = NULL;
@@ -969,10 +1026,8 @@ _gabble_connection_set_properties_from_account (GabbleConnection *conn,
   username = server = resource = NULL;
   result = TRUE;
 
-  gabble_decode_jid (account, &username, &server, &resource);
-
-  if (username == NULL || server == NULL ||
-      *username == '\0' || *server == '\0')
+  if (!gabble_decode_jid (account, &username, &server, &resource) ||
+      username == NULL)
     {
       g_set_error (error, TP_ERRORS, TP_ERROR_INVALID_ARGUMENT,
           "unable to get username and server from account");
@@ -1196,6 +1251,29 @@ static void connection_disco_cb (GabbleDisco *, GabbleDiscoRequest *,
 static void connection_disconnected_cb (LmConnection *, LmDisconnectReason,
     gpointer);
 
+static gboolean
+connect_timeout_cb (gpointer data)
+{
+  GabbleConnection *conn = GABBLE_CONNECTION (data);
+
+  DEBUG ("took too long to connect, giving up!");
+
+  conn->priv->connect_timeout_id = 0;
+
+  if (lm_connection_is_open (conn->lmconn))
+    {
+      lm_connection_close (conn->lmconn, NULL);
+    }
+  else
+    {
+      lm_connection_cancel_open (conn->lmconn);
+      tp_base_connection_change_status ((TpBaseConnection *) conn,
+          TP_CONNECTION_STATUS_DISCONNECTED,
+          TP_CONNECTION_STATUS_REASON_NETWORK_ERROR);
+    }
+
+  return FALSE;
+}
 
 static gboolean
 do_connect (GabbleConnection *conn, GError **error)
@@ -1216,6 +1294,9 @@ do_connect (GabbleConnection *conn, GError **error)
 
       return FALSE;
     }
+
+  conn->priv->connect_timeout_id = g_timeout_add_seconds (
+      connect_timeout, connect_timeout_cb, conn);
 
   return TRUE;
 }
@@ -1343,7 +1424,7 @@ _gabble_connection_connect (TpBaseConnection *base,
   g_assert (priv->resource != NULL);
   g_assert (lm_connection_is_open (conn->lmconn) == FALSE);
 
-  jid = g_strdup_printf ("%s@%s", priv->username, priv->stream_server);
+  jid = gabble_encode_jid (priv->username, priv->stream_server, NULL);
   lm_connection_set_jid (conn->lmconn, jid);
   g_free (jid);
 
@@ -1433,6 +1514,8 @@ connection_disconnected_cb (LmConnection *lmconn,
 
   DEBUG ("called with reason %u", lm_reason);
 
+  cancel_connect_timeout (conn);
+
   /* if we were expecting this disconnection, we're done so can tell
    * the connection manager to unref us. otherwise it's a network error
    * or some other screw up we didn't expect, so we emit the status
@@ -1465,6 +1548,8 @@ connection_shut_down (TpBaseConnection *base)
   GabbleConnection *conn = GABBLE_CONNECTION (base);
 
   g_assert (GABBLE_IS_CONNECTION (conn));
+
+  cancel_connect_timeout (conn);
 
   /* If we're shutting down by user request, we don't want to be
    * unreffed until the LM connection actually closes; the event handler
@@ -1525,6 +1610,10 @@ _gabble_connection_signal_own_presence (GabbleConnection *self, GError **error)
     "ver",   caps_hash,
     NULL);
 
+  /* Ensure this set of capabilities is in the cache. */
+  gabble_presence_cache_add_own_caps (self->presence_cache, caps_hash,
+      presence->caps, presence->per_channel_manager_caps);
+
   /* XEP-0115 deprecates 'ext' feature bundles. But we still need
    * BUNDLE_VOICE_V1 it for backward-compatibility with Gabble 0.2 */
 
@@ -1580,6 +1669,19 @@ _gabble_connection_acknowledge_set_iq (GabbleConnection *conn,
     }
 }
 
+/* Send @message on @self; ignore errors, other than logging @complaint on
+ * failure.
+ */
+static void
+_gabble_connection_send_or_complain (GabbleConnection *self,
+    LmMessage *message,
+    const gchar *complaint)
+{
+  if (!lm_connection_send (self->lmconn, message, NULL))
+    {
+      DEBUG ("%s", complaint);
+    }
+}
 
 /**
  * _gabble_connection_send_iq_error
@@ -1620,6 +1722,40 @@ _gabble_connection_send_iq_error (GabbleConnection *conn,
   lm_message_unref (msg);
 }
 
+static void
+add_feature_node (LmMessageNode *result_query,
+    const gchar *namespace)
+{
+  LmMessageNode *feature_node;
+
+  feature_node = lm_message_node_add_child (result_query, "feature",
+      NULL);
+  lm_message_node_set_attribute (feature_node, "var", namespace);
+}
+
+static void
+reply_with_features (
+    GabbleConnection *self,
+    LmMessage *result,
+    LmMessageNode *result_query,
+    GSList *features)
+{
+  GSList *i;
+
+  for (i = features; NULL != i; i = i->next)
+    {
+      const Feature *feature = (const Feature *) i->data;
+
+      add_feature_node (result_query, feature->ns);
+    }
+
+  NODE_DEBUG (lm_message_get_node (result), "sending disco response");
+  _gabble_connection_send_or_complain (self, result,
+      "sending disco response failed");
+
+  g_slist_free (features);
+}
+
 /**
  * connection_iq_disco_cb
  *
@@ -1636,9 +1772,8 @@ connection_iq_disco_cb (LmMessageHandler *handler,
   LmMessage *result;
   LmMessageNode *iq, *result_iq, *query, *result_query, *identity;
   const gchar *node, *suffix;
-  GSList *features;
-  GSList *i;
-  gchar *caps_hash;
+  GabblePresenceCapabilities caps;
+  GHashTable *contact_caps;
 
   if (lm_message_get_sub_type (message) != LM_MESSAGE_SUB_TYPE_GET)
     return LM_HANDLER_RESULT_ALLOW_MORE_HANDLERS;
@@ -1685,55 +1820,45 @@ connection_iq_disco_cb (LmMessageHandler *handler,
   lm_message_node_set_attribute (identity, "name", PACKAGE_STRING);
   lm_message_node_set_attribute (identity, "type", "pc");
 
-  features = capabilities_get_features (self->self_presence->caps,
-      self->self_presence->per_channel_manager_caps);
-
+  if (node == NULL)
+    {
+      reply_with_features (self, result, result_query,
+          capabilities_get_features (self->self_presence->caps,
+              self->self_presence->per_channel_manager_caps));
+    }
   /* If node is not NULL, it can be either a caps bundle as defined in the
    * legacy XEP-0115 version 1.3 or an hash as defined in XEP-0115 version
-   * 1.5. */
-
-  caps_hash = caps_hash_compute_from_self_presence (self);
-
-  if (NULL == node ||
-      !tp_strdiff (suffix, BUNDLE_VOICE_V1) ||
-      !tp_strdiff (suffix, caps_hash))
+   * 1.5. Let's see if it's a verification string we've told the cache about.
+   */
+  else if (gabble_presence_cache_peek_own_caps (self->presence_cache,
+            suffix, &caps, &contact_caps))
     {
-      for (i = features; NULL != i; i = i->next)
-        {
-          const Feature *feature = (const Feature *) i->data;
-          LmMessageNode *feature_node;
-
-          /* When BUNDLE_VOICE_V1 is requested, only send the bundle */
-          if (!tp_strdiff (suffix, BUNDLE_VOICE_V1) &&
-              feature->feature_type != FEATURE_BUNDLE_COMPAT)
-            continue;
-
-          /* otherwise (no node or hash), put all features */
-          feature_node = lm_message_node_add_child (result_query, "feature",
-              NULL);
-          lm_message_node_set_attribute (feature_node, "var", feature->ns);
-        }
-
-      NODE_DEBUG (result_iq, "sending disco response");
-
-      if (!lm_connection_send (self->lmconn, result, NULL))
-        {
-          DEBUG ("sending disco response failed");
-        }
+      reply_with_features (self, result, result_query,
+          capabilities_get_features (caps, contact_caps));
+    }
+  /* Otherwise, is it one of the caps bundles we advertise? These are not just
+   * shoved into the cache with gabble_presence_cache_add_own_caps() because
+   * capabilities_get_features() always includes a few bonus features...
+   */
+  else if (!tp_strdiff (suffix, BUNDLE_VOICE_V1))
+    {
+      add_feature_node (result_query, NS_GOOGLE_FEAT_VOICE);
+      _gabble_connection_send_or_complain (self, result,
+          "sending disco response failed");
+    }
+  else if (!tp_strdiff (suffix, BUNDLE_VIDEO_V1))
+    {
+      add_feature_node (result_query, NS_GOOGLE_FEAT_VIDEO);
+      _gabble_connection_send_or_complain (self, result,
+          "sending disco response failed");
     }
   else
     {
-      /* Return <item-not-found>. It is possible that the remote contact
-       * requested an old version (old hash) of our capabilities. In the
-       * meantime, it will have gotten a new hash, and query the new hash
-       * anyway. */
       _gabble_connection_send_iq_error (self, message,
           XMPP_ERROR_ITEM_NOT_FOUND, NULL);
     }
-  g_free (caps_hash);
 
   lm_message_unref (result);
-  g_slist_free (features);
 
   return LM_HANDLER_RESULT_REMOVE_MESSAGE;
 }
@@ -2103,11 +2228,6 @@ connection_auth_cb (LmConnection *lmconn,
 
   DEBUG ("Created self handle %d, our JID is %s", base->self_handle, jid);
 
-  /* set initial presence */
-  conn->self_presence = gabble_presence_new ();
-  gabble_presence_update (conn->self_presence, priv->resource,
-      GABBLE_PRESENCE_AVAILABLE, NULL, priv->priority);
-
   /* set initial capabilities */
   gabble_presence_set_capabilities (conn->self_presence, priv->resource,
       capabilities_get_initial_caps (), NULL, priv->caps_serial++);
@@ -2126,7 +2246,11 @@ connection_auth_cb (LmConnection *lmconn,
       tp_base_connection_change_status ((TpBaseConnection *) conn,
           TP_CONNECTION_STATUS_DISCONNECTED,
           TP_CONNECTION_STATUS_REASON_NETWORK_ERROR);
+      return;
     }
+
+  /* Okay, now we can rely on the disco reply timeout. */
+  cancel_connect_timeout (conn);
 }
 
 /**
@@ -2901,7 +3025,7 @@ _gabble_connection_get_canonical_room_name (GabbleConnection *conn,
   if (server == NULL)
     return NULL;
 
-  return g_strdup_printf ("%s@%s", name, server);
+  return gabble_encode_jid (name, server, NULL);
 }
 
 
@@ -3159,16 +3283,14 @@ room_jid_verify (RoomVerifyBatch *batch,
   GError *error = NULL;
 
   room = service = NULL;
-  gabble_decode_jid (batch->contexts[i].jid, &room, &service, NULL);
 
-  if (room == NULL || *room == '\0' || service == NULL || *service == '\0')
+  if (!gabble_decode_jid (batch->contexts[i].jid, &room, &service, NULL) ||
+      room == NULL)
     {
       g_set_error (&error, TP_ERRORS, TP_ERROR_INVALID_ARGUMENT,
           "unable to get room name and service from JID %s",
           batch->contexts[i].jid);
-
       ret = FALSE;
-
       goto out;
     }
 
@@ -3352,4 +3474,10 @@ void
 gabble_connection_set_disco_reply_timeout (guint timeout)
 {
   disco_reply_timeout = timeout;
+}
+
+void
+gabble_connection_set_connect_timeout (guint timeout)
+{
+  connect_timeout = timeout;
 }

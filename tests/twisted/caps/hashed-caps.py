@@ -34,19 +34,18 @@ from caps_helper import (
 
 caps_changed_flag = False
 
+jingle_av_features = [
+    ns.JINGLE_015,
+    ns.JINGLE_015_AUDIO,
+    ns.JINGLE_015_VIDEO,
+    ns.GOOGLE_P2P,
+    ]
+
 def caps_changed_cb(dummy):
     # Workaround to bug 9980: do not raise an error but use a flag
     # https://bugs.freedesktop.org/show_bug.cgi?id=9980
     global caps_changed_flag
     caps_changed_flag = True
-
-def presence_add_caps(presence, ver, client, hash=None):
-    c = presence.addElement(('http://jabber.org/protocol/caps', 'c'))
-    c['node'] = client
-    c['ver'] = ver
-    if hash is not None:
-        c['hash'] = hash
-    return presence
 
 def test_hash(q, bus, conn, stream, contact, contact_handle, client):
     global caps_changed_flag
@@ -67,8 +66,10 @@ def test_hash(q, bus, conn, stream, contact, contact_handle, client):
     assert conn.Capabilities.GetCapabilities([contact_handle]) == basic_caps
 
     # send updated presence with Jingle caps info
-    presence = make_presence(contact, status='hello')
-    presence = presence_add_caps(presence, '0.1', client)
+    presence = make_presence(contact, status='hello',
+        caps={'node': client,
+              'ver':  '0.1',
+             })
     stream.send(presence)
 
     # Gabble looks up our capabilities
@@ -80,21 +81,19 @@ def test_hash(q, bus, conn, stream, contact, contact_handle, client):
 
     # send good reply
     stream.send(make_caps_disco_reply(stream, event.stanza,
-        [ 'http://jabber.org/protocol/jingle',
-          'http://jabber.org/protocol/jingle/description/audio',
-          'http://www.google.com/transport/p2p',
-        ]))
+        jingle_av_features))
 
     # we can now do audio calls
     event = q.expect('dbus-signal', signal='CapabilitiesChanged')
     caps_changed_flag = False
 
     # send bogus presence
-    presence = make_presence(contact, status='hello')
-    c = presence.addElement(('http://jabber.org/protocol/caps', 'c'))
-    c['node'] = client
-    c['ver'] = 'ceci=nest=pas=un=hash'
-    c['hash'] = 'sha-1'
+    caps = {
+        'node': client,
+        'ver':  'ceci=nest=pas=un=hash',
+        'hash': 'sha-1',
+        }
+    presence = make_presence(contact, status='hello', caps=caps)
     stream.send(presence)
 
     # Gabble looks up our capabilities
@@ -102,7 +101,7 @@ def test_hash(q, bus, conn, stream, contact, contact_handle, client):
         query_ns='http://jabber.org/protocol/disco#info')
     query_node = xpath.queryForNodes('/iq/query', event.stanza)[0]
     assert query_node.attributes['node'] == \
-        client + '#' + c['ver']
+        client + '#' + caps['ver']
 
     # send bogus reply
     stream.send(make_caps_disco_reply(stream, event.stanza,
@@ -115,8 +114,10 @@ def test_hash(q, bus, conn, stream, contact, contact_handle, client):
 
 
     # send presence with empty caps
-    presence = make_presence(contact, status='hello')
-    presence = presence_add_caps(presence, '0.0', client)
+    presence = make_presence(contact, status='hello',
+        caps={'node': client,
+              'ver':  '0.0',
+             })
     stream.send(presence)
 
     # Gabble looks up our capabilities
@@ -142,17 +143,13 @@ def test_hash(q, bus, conn, stream, contact, contact_handle, client):
 
 
     # send correct presence
-    features = [
-        'http://jabber.org/protocol/jingle',
-        'http://jabber.org/protocol/jingle/description/audio',
-        'http://www.google.com/transport/p2p',
-        ]
-
-    presence = make_presence(contact, status='hello')
-    c = presence.addElement(('http://jabber.org/protocol/caps', 'c'))
-    c['node'] = client
-    c['ver'] = compute_caps_hash([], features, fake_client_dataforms)
-    c['hash'] = 'sha-1'
+    ver = compute_caps_hash([], jingle_av_features, fake_client_dataforms)
+    caps = {
+        'node': client,
+        'ver':  ver,
+        'hash': 'sha-1',
+        }
+    presence = make_presence(contact, status='hello', caps=caps)
     stream.send(presence)
 
     # Gabble looks up our capabilities
@@ -160,14 +157,14 @@ def test_hash(q, bus, conn, stream, contact, contact_handle, client):
         query_ns='http://jabber.org/protocol/disco#info')
     query_node = xpath.queryForNodes('/iq/query', event.stanza)[0]
     assert query_node.attributes['node'] == \
-        client + '#' + c['ver']
+        client + '#' + caps['ver']
 
     # don't receive any D-Bus signal
     sync_dbus(bus, q, conn)
     assert caps_changed_flag == False
 
     # send good reply
-    result = make_caps_disco_reply(stream, event.stanza, features,
+    result = make_caps_disco_reply(stream, event.stanza, jingle_av_features,
         fake_client_dataforms)
     stream.send(result)
 
@@ -210,19 +207,15 @@ def test_two_clients(q, bus, conn, stream, contact1, contact2,
     assert conn.Capabilities.GetCapabilities([contact_handle2]) == basic_caps
 
     # send updated presence with Jingle caps info
-    presence = make_presence(contact1, status='hello')
-    features = [
-        'http://jabber.org/protocol/jingle',
-        'http://jabber.org/protocol/jingle/description/audio',
-        'http://www.google.com/transport/p2p',
-        ]
-    ver = compute_caps_hash([], features, {})
-    presence = presence_add_caps(presence, ver, client,
-            hash='sha-1')
+    ver = compute_caps_hash([], jingle_av_features, {})
+    caps = {
+        'node': client,
+        'ver': ver,
+        'hash': 'sha-1',
+        }
+    presence = make_presence(contact1, status='hello', caps=caps)
     stream.send(presence)
-    presence = make_presence(contact2, status='hello')
-    presence = presence_add_caps(presence, ver, client,
-            hash='sha-1')
+    presence = make_presence(contact2, status='hello', caps=caps)
     stream.send(presence)
 
     # Gabble looks up our capabilities
@@ -236,7 +229,7 @@ def test_two_clients(q, bus, conn, stream, contact1, contact2,
     sync_dbus(bus, q, conn)
     assert caps_changed_flag == False
 
-    result = make_caps_disco_reply(stream, event.stanza, features)
+    result = make_caps_disco_reply(stream, event.stanza, jingle_av_features)
 
     if broken_hash:
         # make the hash break!
@@ -259,19 +252,19 @@ def test_two_clients(q, bus, conn, stream, contact1, contact2,
         assert caps_changed_flag == False
 
         # send good reply
-        result = make_caps_disco_reply(stream, event.stanza, features)
+        result = make_caps_disco_reply(stream, event.stanza, jingle_av_features)
         stream.send(result)
 
     # we can now do audio calls with both contacts
     event = q.expect('dbus-signal', signal='CapabilitiesChanged',
-        #  what are the good values?!
-        args=[[(contact_handle2, cs.CHANNEL_TYPE_STREAMED_MEDIA, 0, 3, 0, 1)]])
+        args=[[(contact_handle2, cs.CHANNEL_TYPE_STREAMED_MEDIA, 0, 3, 0,
+            cs.MEDIA_CAP_AUDIO | cs.MEDIA_CAP_VIDEO)]])
     if not broken_hash:
         # if the first contact failed to provide a good hash, it does not
         # deserve its capabilities to be understood by Gabble!
         event = q.expect('dbus-signal', signal='CapabilitiesChanged',
-            #  what are the good values?!
-            args=[[(contact_handle1, cs.CHANNEL_TYPE_STREAMED_MEDIA, 0, 3, 0, 1)]])
+            args=[[(contact_handle1, cs.CHANNEL_TYPE_STREAMED_MEDIA, 0, 3, 0,
+                cs.MEDIA_CAP_AUDIO | cs.MEDIA_CAP_VIDEO)]])
 
     caps_changed_flag = False
 
