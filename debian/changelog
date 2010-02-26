@@ -1,9 +1,70 @@
-telepathy-gabble (0.8.8-0maemo1+0m5) fremantle; urgency=low
+telepathy-gabble (0.8.11-0maemo2+0m5) fremantle; urgency=low
 
   * This entry has been added by BIFH queue processor
     Suffix +0m5 added to package revision
 
- -- reto zingg <reto.zingg@nokia.com>  Thu, 12 Nov 2009 13:25:34 +0200
+ -- Mahawadhi Ratna <ext-ratna.2.mahawadhi@nokia.com>  Fri, 26 Feb 2010 11:32:44 +0200
+
+telepathy-gabble (0.8.11-0maemo2) fremantle; urgency=low
+
+  * Don't crash when disabling camera in a video call before the call
+    is established. Fixes: NB#153299.
+
+ -- Senko Rasic <senko.rasic@collabora.co.uk>  Mon, 22 Feb 2010 13:12:33 +0100
+
+telepathy-gabble (0.8.11-0maemo1) fremantle; urgency=low
+
+  * New upstream release.
+  * Correctly generate capability hashes when compiled with
+    --enable-is-a-phone. Fixes NB#156186 (“After disconnecting and connecting
+    to network call capability is lost for sometime for voip contacts”).
+
+ -- Dafydd Harries <daf@debian.org>  Wed, 17 Feb 2010 11:58:08 -0500
+
+telepathy-gabble (0.8.10-0maemo3) fremantle; urgency=low
+
+  * Correctly label NB#144921 as fixed.
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Tue, 02 Feb 2010 11:12:53 +0000
+
+telepathy-gabble (0.8.10-0maemo2) fremantle; urgency=low
+
+  * Add build-dependency on libsqlite3-dev.
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Fri, 29 Jan 2010 08:22:42 +0000
+
+telepathy-gabble (0.8.10-0maemo1) fremantle; urgency=low
+
+  * New upstream release.
+  * Contacts' capablities are cached when possible, meaning less capability
+    discovery requests, and hence less traffic when signing in.
+    Fixes: NB#144921 (“Gabble uses a ridiculous amount of bandwidth on signing
+    in”).
+  * The --enable-is-a-phone configuration flag was added upstream; this is
+    enabled on Maemo so that contacts can make resource selection decisions
+    for calls based on this.
+
+ -- Dafydd Harries <daf@debian.org>  Thu, 28 Jan 2010 17:22:21 -0500
+
+telepathy-gabble (0.8.9-0maemo1) fremantle; urgency=low
+
+  * New upstream release 0.8.9.
+  * Gabble now advertises a 'pmuc-v1' capability bundle, telling the Google
+    Mail client that we support being invited to MUCs, and MUC servers are no
+    longer sent a service discovery request the first time you request a
+    handle for a room on that server. This allows Gabble to be invited to and
+    thus join Google Talk MUCs. Fixes NB#148739 (Support being invited to, and
+    joining, Google Talk multi-user chats)
+  * Gabble only advertises support for file transfers if a handler is
+    available, and only probes socks5 proxy servers when needed.
+    Fixes: NB#135965 (Rover advertises File Transfer capabilities even though
+    it doesn't have any.)
+  * Always assume that MUC servers will let us change the subject, mitigating
+    fd.o #13157; previously we assumed they would only let moderators change
+    the subject. Fixes NB#143698 (Gabble should assume topic can be written,
+    even though it can't tell for sure)
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Mon, 07 Dec 2009 18:33:36 +0000
 
 telepathy-gabble (0.8.8-0maemo1) fremantle; urgency=low
 

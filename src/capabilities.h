@@ -36,6 +36,7 @@
  */
 #define BUNDLE_VOICE_V1         "voice-v1"
 #define BUNDLE_VIDEO_V1         "video-v1"
+#define BUNDLE_PMUC_V1          "pmuc-v1"
 
 typedef struct _Feature Feature;
 
@@ -74,6 +75,8 @@ void capabilities_fill_cache (GabblePresenceCache *cache);
 GabblePresenceCapabilities capabilities_get_initial_caps (void);
 
 GabblePresenceCapabilities capabilities_parse (LmMessageNode *query_result);
+
+GabblePresenceCapabilities capabilities_from_ns (const gchar *ns);
 
 typedef GabblePresenceCapabilities (*TypeFlagsToCapsFunc) (guint typeflags);
 typedef guint (*CapsToTypeFlagsFunc) (GabblePresenceCapabilities caps);

@@ -1,7 +1,7 @@
 # Included by debian/rules.
 
 # Use Maemo's Python, not the ancient Python provided by Scratchbox
-DEB_CONFIGURE_EXTRA_FLAGS += PYTHON=/usr/bin/python2.5
+DEB_CONFIGURE_EXTRA_FLAGS += PYTHON=/usr/bin/python2.5 --enable-is-a-phone
 
 # Use soft-float and thumb mode if it enabled.
 ifneq (,$(findstring thumb,$(DEB_BUILD_OPTIONS)))

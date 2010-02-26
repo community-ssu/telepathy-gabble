@@ -28,8 +28,10 @@
 #include <telepathy-glib/dbus.h>
 #include <telepathy-glib/errors.h>
 
+#include "caps-cache.h"
 #include "connection.h"
 #include "debug.h"
+#include "debugger.h"
 
 G_DEFINE_TYPE(GabbleConnectionManager,
     gabble_connection_manager,
@@ -49,7 +51,9 @@ static TpBaseConnection *_gabble_connection_manager_new_connection (
 static void
 gabble_connection_manager_finalize (GObject *object)
 {
+  gabble_caps_cache_free_shared ();
   gabble_debug_free ();
+  gabble_debugger_free_singleton ();
 }
 
 static void
@@ -126,7 +130,9 @@ static TpCMParamSpec jabber_params[] = {
     /* FIXME: validate the JID according to the RFC */
     tp_cm_param_filter_string_nonempty, NULL },
   { "password", DBUS_TYPE_STRING_AS_STRING, G_TYPE_STRING,
-    TP_CONN_MGR_PARAM_FLAG_REQUIRED | TP_CONN_MGR_PARAM_FLAG_REGISTER, NULL,
+    TP_CONN_MGR_PARAM_FLAG_REQUIRED | TP_CONN_MGR_PARAM_FLAG_REGISTER |
+      TP_CONN_MGR_PARAM_FLAG_SECRET,
+    NULL,
     G_STRUCT_OFFSET(GabbleParams, password), NULL, NULL },
 
   { "server", DBUS_TYPE_STRING_AS_STRING, G_TYPE_STRING, 0, NULL,
@@ -287,6 +293,15 @@ _gabble_connection_manager_new_connection (TpBaseConnectionManager *self,
                        "password",           params->password,
                        NULL);
 
+  /* split up account into username, stream-server and resource */
+  if (!_gabble_connection_set_properties_from_account (conn, params->account,
+        error))
+    {
+      g_object_unref (G_OBJECT (conn));
+      conn = NULL;
+      goto out;
+    }
+
   SET_PROPERTY_IF_PARAM_SET ("connect-server", JABBER_PARAM_SERVER,
                              params->server);
   SET_PROPERTY_IF_PARAM_SET ("resource", JABBER_PARAM_RESOURCE,
@@ -327,13 +342,6 @@ _gabble_connection_manager_new_connection (TpBaseConnectionManager *self,
   SET_PROPERTY_IF_PARAM_SET ("keepalive-interval",
       JABBER_PARAM_KEEPALIVE_INTERVAL, params->keepalive_interval);
 
-  /* split up account into username, stream-server and resource */
-  if (!_gabble_connection_set_properties_from_account (conn, params->account,
-        error))
-    {
-      g_object_unref (G_OBJECT (conn));
-      conn = NULL;
-    }
-
+out:
   return (TpBaseConnection *) conn;
 }

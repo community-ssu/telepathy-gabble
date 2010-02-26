@@ -5,10 +5,12 @@ import dbus
 
 from twisted.words.xish import domish, xpath
 from gabbletest import make_result_iq, make_presence
-from servicetest import EventPattern, assertEquals, assertContains, \
-        assertDoesNotContain
+from servicetest import (
+    EventPattern,
+    assertEquals, assertContains, assertDoesNotContain, assertLength,
+    )
 
-from config import PACKAGE_STRING
+from config import PACKAGE_STRING, ENABLE_ASSUMED_FT_CAP
 import ns
 import constants as cs
 
@@ -44,9 +46,10 @@ JINGLE_CAPS = [
 VARIABLE_CAPS = (
     JINGLE_CAPS +
     [
+    ns.FILE_TRANSFER,
+
     # FIXME: currently we always advertise these, but in future we should
     # only advertise them if >= 1 client supports them:
-    # ns.FILE_TRANSFER,
     # ns.TUBES,
 
     # there is an unlimited set of these; only the ones actually relevant to
@@ -57,6 +60,14 @@ VARIABLE_CAPS = (
     ns.TUBES + '/dbus#com.example.Go',
     ns.TUBES + '/dbus#com.example.Xiangqi',
     ])
+
+if ENABLE_ASSUMED_FT_CAP:
+    # For backwards compatibility, the default behaviour of the stable
+    # branch is to say that we can receive file transfers, even if no
+    # client seems to be able to. Disable with
+    # ./configure --disable-assumed-ft-cap */
+    VARIABLE_CAPS.remove(ns.FILE_TRANSFER)
+    FIXED_CAPS.append(ns.FILE_TRANSFER)
 
 def check_caps(namespaces, desired):
     """Assert that all the FIXED_CAPS are supported, and of the VARIABLE_CAPS,
@@ -126,6 +137,11 @@ def compute_caps_hash(identities, features, dataforms):
     components = []
 
     for identity in sorted(identities):
+        if len(identity.split('/')) != 4:
+            raise ValueError(
+                "expecting identities of the form " +
+                "'category/type/lang/client': got " + repr(identity))
+
         components.append(identity)
 
     for feature in sorted(features):
@@ -147,9 +163,16 @@ def compute_caps_hash(identities, features, dataforms):
     m.update(S.encode('utf-8'))
     return base64.b64encode(m.digest())
 
-def make_caps_disco_reply(stream, req, features, dataforms={}):
+def make_caps_disco_reply(stream, req, identities, features, dataforms={}):
     iq = make_result_iq(stream, req)
     query = iq.firstChildElement()
+
+    for identity in identities:
+        category, type_, lang, name = identity.split('/')
+        el = query.addElement('identity')
+        el['category'] = category
+        el['type'] = type_
+        el['name'] = name
 
     for f in features:
         el = domish.Element((None, 'feature'))
@@ -181,7 +204,7 @@ def receive_presence_and_ask_caps(q, stream, expect_dbus=True):
                 EventPattern('stream-presence'),
                 EventPattern('dbus-signal', signal='ContactCapabilitiesChanged')
             )
-        assert len(event_dbus.args) == 1
+        assertLength(1, event_dbus.args)
         signaled_caps = event_dbus.args[0]
     else:
         presence = q.expect('stream-presence')
@@ -192,11 +215,11 @@ def receive_presence_and_ask_caps(q, stream, expect_dbus=True):
 def disco_caps(q, stream, presence):
     c_nodes = xpath.queryForNodes('/presence/c', presence.stanza)
     assert c_nodes is not None
-    assert len(c_nodes) == 1
+    assertLength(1, c_nodes)
     hash = c_nodes[0].attributes['hash']
     ver = c_nodes[0].attributes['ver']
     node = c_nodes[0].attributes['node']
-    assert hash == 'sha-1'
+    assertEquals('sha-1', hash)
 
     # ask caps
     request = """
@@ -218,7 +241,8 @@ def disco_caps(q, stream, presence):
         features.append(feature['var'])
 
     # Check if the hash matches the announced capabilities
-    assert ver == compute_caps_hash(['client/pc//%s' % PACKAGE_STRING], features, {})
+    assertEquals(compute_caps_hash(['client/pc//%s' % PACKAGE_STRING], features, {}),
+        ver)
 
     return (event, features)
 
@@ -241,7 +265,7 @@ def presence_and_disco(q, conn, stream, contact, disco,
 
     if disco:
         stanza = expect_disco(q, contact, client, caps)
-        send_disco_reply(stream, stanza, features, dataforms)
+        send_disco_reply(stream, stanza, [], features, dataforms)
 
     return h
 
@@ -275,18 +299,19 @@ def expect_disco(q, contact, client, caps):
 
     return event.stanza
 
-def send_disco_reply(stream, stanza, features, dataforms={}):
-    # send good reply
-    result = make_caps_disco_reply(stream, stanza, features, dataforms)
-    stream.send(result)
+def send_disco_reply(stream, stanza, identities, features, dataforms={}):
+    stream.send(
+        make_caps_disco_reply(stream, stanza, identities, features, dataforms))
 
 if __name__ == '__main__':
     # example from XEP-0115
-    assert compute_caps_hash(['client/pc//Exodus 0.9.1'],
-        ["http://jabber.org/protocol/disco#info",
-        "http://jabber.org/protocol/disco#items",
-        "http://jabber.org/protocol/muc", "http://jabber.org/protocol/caps"],
-        {}) == 'QgayPKawpkPSDYmwT/WM94uAlu0='
+    assertEquals('QgayPKawpkPSDYmwT/WM94uAlu0=',
+        compute_caps_hash(['client/pc//Exodus 0.9.1'],
+            ["http://jabber.org/protocol/disco#info",
+             "http://jabber.org/protocol/disco#items",
+             "http://jabber.org/protocol/muc",
+             "http://jabber.org/protocol/caps"],
+            {}))
 
     # another example from XEP-0115
     identities = [u'client/pc/en/Psi 0.11', u'client/pc/el/Ψ 0.11']

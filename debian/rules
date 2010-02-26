@@ -11,6 +11,7 @@ common-binary-post-install-arch:: list-missing
 
 # cdbs defaults to one subdirectory per source package, which is overkill for us
 DEB_CONFIGURE_LIBEXECDIR := "\$${prefix}/lib/telepathy"
+DEB_CONFIGURE_EXTRA_FLAGS := --disable-assumed-ft-cap
 
 # this has a tight dependency, so we can symlink the doc directories together
 DEB_INSTALL_DOCS_telepathy-gabble-dbg := --no-act

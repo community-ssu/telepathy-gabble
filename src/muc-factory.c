@@ -62,7 +62,6 @@ enum
   LAST_PROPERTY
 };
 
-typedef struct _GabbleMucFactoryPrivate GabbleMucFactoryPrivate;
 struct _GabbleMucFactoryPrivate
 {
   GabbleConnection *conn;
@@ -104,6 +103,8 @@ static void
 gabble_muc_factory_init (GabbleMucFactory *fac)
 {
   GabbleMucFactoryPrivate *priv = GABBLE_MUC_FACTORY_GET_PRIVATE (fac);
+
+  fac->priv = priv;
 
   priv->text_channels = g_hash_table_new_full (g_direct_hash, g_direct_equal,
       NULL, g_object_unref);
@@ -641,7 +642,8 @@ process_muc_invite (GabbleMucFactory *fac,
     return FALSE;
 
   /* and an invitation? */
-  invite_node = lm_message_node_get_child (x_node, "invite");
+  invite_node = lm_message_node_get_child_with_namespace (x_node, "invite",
+      NS_MUC_USER);
 
   if (invite_node == NULL)
     return FALSE;
@@ -975,7 +977,9 @@ muc_factory_presence_cb (LmMessageHandler *handler,
               return LM_HANDLER_RESULT_REMOVE_MESSAGE;
             }
 
-          item_node = lm_message_node_get_child (x_node, "item");
+          item_node = lm_message_node_get_child_with_namespace (x_node,
+              "item", NS_MUC_USER);
+
           if (item_node == NULL)
             {
               DEBUG ("node missing 'item' child, ignoring");

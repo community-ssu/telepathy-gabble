@@ -9,7 +9,7 @@ AC_PREREQ([2.59])
 
 m4_define([gabble_major_version], [0])
 m4_define([gabble_minor_version], [8])
-m4_define([gabble_micro_version], [8])
+m4_define([gabble_micro_version], [11])
 m4_define([gabble_nano_version], [0])
 
 # Some magic
@@ -92,22 +92,46 @@ AC_ARG_ENABLE(coding-style-checks,
     [ # Gabble is version x.y.z.1 - enable coding style checks by default
 AC_ARG_ENABLE(coding-style-checks,
   AC_HELP_STRING([--disable-coding-style-checks],
-                 [don't check coding style using grep]),
+                 [do not check coding style using grep]),
     [ENABLE_CODING_STYLE_CHECKS=$enableval], [ENABLE_CODING_STYLE_CHECKS=yes])
     ])
 
 if test x$enable_debug = xyes; then
   AC_DEFINE(ENABLE_DEBUG, [], [Enable debug code])
 fi
+AM_CONDITIONAL([ENABLE_DEBUG], [test "x$enable_debug" = xyes])
 
 if test x$enable_handle_leak_debug = xyes; then
   AC_DEFINE(ENABLE_HANDLE_LEAK_DEBUG, [], [Enable handle leak debug code])
   HANDLE_LEAK_DEBUG_CFLAGS="-rdynamic"
 fi
 
+AC_ARG_ENABLE([assumed-ft-cap],
+  AC_HELP_STRING([--disable-assumed-ft-cap],
+    [do not assume that we have a client capable of receiving file transfers]),
+    [assumed_ft_cap="$enableval"],
+    [assumed_ft_cap=yes])
+if test "x$assumed_ft_cap" = xyes; then
+  AC_DEFINE(ENABLE_ASSUMED_FT_CAP, [], [--enable-assumed-ft-cap])
+fi
+AM_CONDITIONAL([ENABLE_ASSUMED_FT_CAP], [test "x$assumed_ft_cap" = xyes])
+
 AC_SUBST(HANDLE_LEAK_DEBUG_CFLAGS)
 
 AC_SUBST([ENABLE_CODING_STYLE_CHECKS])
+
+AC_ARG_ENABLE([is-a-phone],
+  AC_HELP_STRING([--enable-is-a-phone],
+    [advertise that we are a phone, not a PC]),
+    [is_a_phone=$enableval], [is_a_phone=no])
+
+if test x$is_a_phone = xyes; then
+  AC_DEFINE(CLIENT_TYPE, ["phone"],
+      [Client type from http://xmpp.org/registrar/disco-categories.html#client])
+else
+  AC_DEFINE(CLIENT_TYPE, ["pc"],
+      [Client type from http://xmpp.org/registrar/disco-categories.html#client])
+fi
 
 dnl Check for Glib
 PKG_CHECK_MODULES(GLIB, [glib-2.0 >= 2.16, gobject-2.0 >= 2.16, gthread-2.0 >= 2.16])
@@ -153,6 +177,11 @@ AC_CHECK_FUNC(res_query, ,
 )
 
 AC_SUBST(RESOLV_LIBS)
+
+PKG_CHECK_MODULES(SQLITE, [sqlite3])
+
+AC_SUBST(SQLITE_CFLAGS)
+AC_SUBST(SQLITE_LIBS)
 
 dnl Check for code generation tools
 XSLTPROC=

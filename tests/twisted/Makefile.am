@@ -1,9 +1,11 @@
 TWISTED_TESTS = \
-	avatar-requirements.py \
 	caps_helper.py \
+	servicetest.py \
+	avatar-requirements.py \
 	caps/advertise-draft1.py \
 	caps/advertise-legacy.py \
 	caps/caps-cache.py \
+	caps/caps-persistent-cache.py \
 	caps/compat-bundles.py \
 	caps/double-disco.py \
 	caps/from-bare-jid.py \
@@ -17,6 +19,7 @@ TWISTED_TESTS = \
 	muc/renamed.py \
 	muc/roomlist.py \
 	muc/send-error.py \
+	muc/subject.py \
 	muc/test-ensure.py \
 	muc/test-muc-alias.py \
 	muc/test-muc-invitation.py \
@@ -77,7 +80,9 @@ TWISTED_TESTS = \
 	tubes/request-invalid-dbus-tube.py \
 	tubes/test-get-available-tubes.py \
 	tubes/test-socks5-muc.py \
+	vcard/item-not-found.py \
 	vcard/overlapping-sets.py \
+	vcard/redundant-set.py \
 	vcard/set-set-disconnect.py \
 	vcard/test-alias-empty-vcard.py \
 	vcard/test-alias-pep.py \
@@ -175,24 +180,33 @@ check-twisted:
 		exit 1;\
 	fi
 
+if ENABLE_DEBUG
+DEBUGGING_PYBOOL = True
+else
+DEBUGGING_PYBOOL = False
+endif
+
+if ENABLE_ASSUMED_FT_CAP
+ENABLE_ASSUMED_FT_CAP_PYBOOL = True
+else
+ENABLE_ASSUMED_FT_CAP_PYBOOL = False
+endif
+
 config.py: Makefile
-	echo "PACKAGE_STRING = \"$(PACKAGE_STRING)\"" > config.py
-	if test -n ''$(ENABLE_DEBUG); then \
-		echo "DEBUGGING = True" >> config.py; \
-	else \
-		echo "DEBUGGING = False" >> config.py; \
-	fi
+	$(QUIET_GEN) { \
+		echo "PACKAGE_STRING = \"$(PACKAGE_STRING)\""; \
+		echo "DEBUGGING = $(DEBUGGING_PYBOOL)"; \
+		echo "ENABLE_ASSUMED_FT_CAP = $(ENABLE_ASSUMED_FT_CAP_PYBOOL)"; \
+	} > $@
 
 BUILT_SOURCES = config.py
 
 EXTRA_DIST = \
 	$(TWISTED_TESTS) \
 	bytestream.py \
-	config.py \
 	constants.py \
 	gabbletest.py \
 	httptest.py \
-	servicetest.py \
 	jingle/jingletest.py \
 	jingle/jingletest2.py \
 	mucutil.py \

@@ -58,8 +58,8 @@ typedef void (*GabbleCapsChannelManagerGetContactCapsFunc) (
     GabbleCapsChannelManager *manager, GabbleConnection *conn, TpHandle handle,
     GPtrArray *arr);
 
-typedef void (*GabbleCapsChannelManagerAddCapFunc) (
-    GabbleCapsChannelManager *manager, GabbleConnection *conn, TpHandle handle,
+typedef void (*GabbleCapsChannelManagerAddSelfCapFunc) (
+    GabbleCapsChannelManager *manager, GabbleConnection *conn,
     GHashTable *cap);
 
 /* Specific to Gabble */
@@ -68,7 +68,7 @@ typedef void (*GabbleCapsChannelManagerGetFeatureListFunc) (
     GSList **features);
 
 typedef gpointer (*GabbleCapsChannelManagerParseCapsFunc) (
-    GabbleCapsChannelManager *manager, LmMessageNode *children);
+    GabbleCapsChannelManager *manager, gchar **uris);
 
 typedef void (*GabbleCapsChannelManagerFreeCapsFunc) (
     GabbleCapsChannelManager *manager, gpointer specific_caps);
@@ -95,7 +95,7 @@ void gabble_caps_channel_manager_get_feature_list (
     GSList **features);
 
 gpointer gabble_caps_channel_manager_parse_capabilities (
-    GabbleCapsChannelManager *manager, LmMessageNode *query_result);
+    GabbleCapsChannelManager *caps_manager, gchar **uris);
 
 void gabble_caps_channel_manager_free_capabilities (GabbleCapsChannelManager *manager,
     gpointer specific_caps);
@@ -111,16 +111,15 @@ gboolean gabble_caps_channel_manager_capabilities_diff (
     GabbleCapsChannelManager *manager, TpHandle handle,
     gpointer specific_old_caps, gpointer specific_new_caps);
 
-void gabble_caps_channel_manager_add_capability (
-    GabbleCapsChannelManager *manager, GabbleConnection *conn, TpHandle handle,
+void gabble_caps_channel_manager_add_self_capability (
+    GabbleCapsChannelManager *manager, GabbleConnection *conn,
     GHashTable *cap);
-
 
 struct _GabbleCapsChannelManagerIface {
     GTypeInterface parent;
 
     GabbleCapsChannelManagerGetContactCapsFunc get_contact_caps;
-    GabbleCapsChannelManagerAddCapFunc add_cap;
+    GabbleCapsChannelManagerAddSelfCapFunc add_self_capability;
 
     GabbleCapsChannelManagerGetFeatureListFunc get_feature_list;
     GabbleCapsChannelManagerParseCapsFunc parse_caps;

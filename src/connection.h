@@ -41,29 +41,9 @@ G_BEGIN_DECLS
 /* Default parameters for optional parameters */
 #define GABBLE_PARAMS_DEFAULT_HTTPS_PROXY_PORT           443
 #define GABBLE_PARAMS_DEFAULT_STUN_PORT                  3478
-#define GABBLE_PARAMS_DEFAULT_FALLBACK_STUN_SERVER       "stun.collabora.co.uk"
-/* List of public SOCKS5 proxies:
- * http://coccinella.im/servers/servers_by_proxy_bytestreams.html */
-#define GABBLE_PARAMS_DEFAULT_SOCKS5_PROXIES             \
-    { "proxy.jabber.org", "proxy.jabberfr.org",\
-      "proxy65.rooyee.biz", "proxy.jabbim.cz",\
-      "proxy.911910.cn",\
-      "proxy.downtempo.de",\
-      "proxy.im.flosoft.biz",\
-      "proxy.jabber.bluendo.com", "proxy.jabber.dk", "proxy.jabber.freenet.de",\
-      "proxy.fsinf.at", "proxy.jabber.minus273.org",\
-      "proxy.jabber.planetteamspeak.com", "proxy.jabber.tf-network.de",\
-      "proxy.jabjab.de", "proxy.jabster.pl",\
-      "proxy.schokokeks.org",\
-      "proxy.ubuntu-jabber.de", "proxy.ubuntu-jabber.net",\
-      "proxy65.unstable.nl", "proxy.verdammung.org", "proxy.vke.ru",\
-      "proxy.vodka-pomme.net", "proxy.jabbernet.eu",\
-      NULL }
+#define GABBLE_PARAMS_DEFAULT_FALLBACK_STUN_SERVER       "stun.telepathy.im"
+#define GABBLE_PARAMS_DEFAULT_SOCKS5_PROXIES             { NULL }
 
-/* These proxies appeared to be the same as proxy.jabbernet.eu
-    "proxy.jabberchat.eu", "proxy.shady.nl", "proxy.nedbsd.be",\
-    "proxy.nedbsd.eu", "proxy.nedbsd.nl", "proxy.4business.nl"\
-*/
 
 /* order must match array of statuses in conn-presence.c */
 /* in increasing order of presence */
@@ -239,6 +219,8 @@ void _gabble_connection_send_iq_error (GabbleConnection *conn,
     LmMessage *message, GabbleXmppError error, const gchar *errmsg);
 
 const char *_gabble_connection_find_conference_server (GabbleConnection *);
+gchar *gabble_connection_get_canonical_room_name (GabbleConnection *conn,
+    const gchar *jid);
 gboolean _gabble_connection_signal_own_presence (GabbleConnection *,
     GError **);
 

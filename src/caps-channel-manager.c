@@ -95,7 +95,7 @@ void gabble_caps_channel_manager_get_feature_list (
 
 gpointer gabble_caps_channel_manager_parse_capabilities (
     GabbleCapsChannelManager *caps_manager,
-    LmMessageNode *query_result)
+    gchar **uris)
 {
   GabbleCapsChannelManagerIface *iface =
     GABBLE_CAPS_CHANNEL_MANAGER_GET_INTERFACE (caps_manager);
@@ -103,7 +103,7 @@ gpointer gabble_caps_channel_manager_parse_capabilities (
 
   if (method != NULL)
     {
-      return method (caps_manager, query_result);
+      return method (caps_manager, uris);
     }
   /* ... else assume there is not caps for this kind of channels */
   return NULL;
@@ -177,19 +177,18 @@ gboolean gabble_caps_channel_manager_capabilities_diff (
 }
 
 void
-gabble_caps_channel_manager_add_capability (
+gabble_caps_channel_manager_add_self_capability (
     GabbleCapsChannelManager *caps_manager,
     GabbleConnection *conn,
-    TpHandle handle,
     GHashTable *cap)
 {
   GabbleCapsChannelManagerIface *iface =
     GABBLE_CAPS_CHANNEL_MANAGER_GET_INTERFACE (caps_manager);
-  GabbleCapsChannelManagerAddCapFunc method = iface->add_cap;
+  GabbleCapsChannelManagerAddSelfCapFunc method = iface->add_self_capability;
 
   if (method != NULL)
     {
-      method (caps_manager, conn, handle, cap);
+      method (caps_manager, conn, cap);
     }
   /* ... else, nothing to do */
 }
