@@ -1,4 +1,37 @@
-telepathy-gabble 0.8.10 (2010-02-16)
+telepathy-gabble 0.8.13 (2010-04-16)
+====================================
+
+The “like soldiers marching into the sea” release.
+
+Enhancements:
+
+• Expose “MUC full” as Busy on the Group interface. (wjt)
+
+Fixes:
+
+• GetContactAttributes(): return an empty hash for a contact's location
+  if we don't know their location. Fixes fd.o#27694 (cassidy)
+
+telepathy-gabble 0.8.12 (2010-03-19)
+====================================
+
+The “Joey, do you like movies about gladiators?” release.
+
+Fixes:
+
+• Jingle: Don't send a content-modify message if the content
+  hasn't been sent yet. (ptlo)
+
+• Improve Windows portability. (smcv)
+
+• Location: implement the 'accuracy' key instead of the deprecated
+  'error' one. (cassidy)
+
+• Fix a crash when updating the tube capabilities of a contact.
+  (fd.o #27131, cassidy)
+
+
+telepathy-gabble 0.8.11 (2010-02-16)
 ====================================
 
 The “perhaps man is not meant to know” release.

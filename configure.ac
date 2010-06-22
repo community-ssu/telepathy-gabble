@@ -9,7 +9,7 @@ AC_PREREQ([2.59])
 
 m4_define([gabble_major_version], [0])
 m4_define([gabble_minor_version], [8])
-m4_define([gabble_micro_version], [11])
+m4_define([gabble_micro_version], [13])
 m4_define([gabble_nano_version], [0])
 
 # Some magic
@@ -53,6 +53,17 @@ AS_COMPILER_FLAG(-Wno-missing-field-initializers,
 AS_COMPILER_FLAG(-Wno-unused-parameter,
         wno_unused_parameter=yes,
         wno_unused_parameter=no)
+AS_COMPILER_FLAG(-Wno-deprecated-declarations,
+        wno_deprecated_declarations=yes,
+        wno_deprecated_declarations=no)
+
+# -Wdeprecated-declarations is on by default, so if we can't have it, then
+# we can't safely make warnings fatal
+if test "x$wno_deprecated_declarations" = xyes; then
+    ERROR_CFLAGS="$ERROR_CFLAGS -Wno-deprecated-declarations"
+else
+    werror=no
+fi
 
 ifelse(gabble_nano_version, 0, [],
     [
@@ -128,10 +139,14 @@ AC_ARG_ENABLE([is-a-phone],
 if test x$is_a_phone = xyes; then
   AC_DEFINE(CLIENT_TYPE, ["phone"],
       [Client type from http://xmpp.org/registrar/disco-categories.html#client])
+  CLIENT_TYPE=phone
 else
   AC_DEFINE(CLIENT_TYPE, ["pc"],
       [Client type from http://xmpp.org/registrar/disco-categories.html#client])
+  CLIENT_TYPE=pc
 fi
+
+AC_SUBST(CLIENT_TYPE)
 
 dnl Check for Glib
 PKG_CHECK_MODULES(GLIB, [glib-2.0 >= 2.16, gobject-2.0 >= 2.16, gthread-2.0 >= 2.16])
@@ -220,6 +235,14 @@ if test x"$HAVE_UUID" = xyes; then
   AC_DEFINE([HAVE_UUID], [1], [Define if libuuid is available])
 else
   AC_MSG_WARN([libuuid not found, falling back to generating random IDs])
+fi
+
+dnl Check for MCE, a Maemo service used by Gabble to determine when the device
+dnl is idle.
+PKG_CHECK_MODULES([MCE], mce >= 1.5, [HAVE_MCE=yes], [HAVE_MCE=no])
+AM_CONDITIONAL([HAVE_MCE], [test x"$HAVE_MCE" = xyes])
+if test x"$HAVE_MCE" = xyes; then
+  AC_DEFINE([HAVE_MCE], [1], [Define if mce is available])
 fi
 
 AC_CHECK_FUNCS(getifaddrs memset select strndup setresuid setreuid strerror)

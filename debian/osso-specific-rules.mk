@@ -13,6 +13,10 @@ ifneq (,$(findstring coverage,$(DEB_BUILD_OPTIONS)))
 	DEB_CONFIGURE_EXTRA_FLAGS += --enable-coverage
 endif
 
+ifeq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
+    CFLAGS += -DG_DISABLE_CAST_CHECKS
+endif
+
 # Use parallel jobs if possible
 ifneq (,$(findstring parallel,$(DEB_BUILD_OPTIONS)))
 	PARALLEL_JOBS := $(shell echo $(DEB_BUILD_OPTIONS) | \

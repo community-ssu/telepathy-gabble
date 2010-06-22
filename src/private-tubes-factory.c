@@ -717,23 +717,19 @@ gabble_private_tubes_factory_free_caps (
  g_free (caps);
 }
 
-static void
-copy_caps_helper (gpointer key, gpointer value, gpointer user_data)
+static Feature *
+copy_caps (Feature *feat)
 {
-  GHashTable *out = user_data;
-  gchar *str = key;
-  Feature *feat = value;
-  Feature *copy = NULL;
+  Feature *copy;
 
-  if (value != NULL)
-    {
-      copy = g_new0 (Feature, 1);
-      copy->feature_type = feat->feature_type;
-      copy->ns = g_strdup (feat->ns);
-      copy->caps = feat->caps;
-    }
+  if (feat == NULL)
+    return NULL;
 
-  g_hash_table_insert (out, g_strdup (str), copy);
+  copy = g_new0 (Feature, 1);
+  copy->feature_type = feat->feature_type;
+  copy->ns = g_strdup (feat->ns);
+  copy->caps = feat->caps;
+  return copy;
 }
 
 static void
@@ -747,13 +743,15 @@ gabble_private_tubes_factory_copy_caps (
 
   caps_out->stream_tube_caps = g_hash_table_new_full (g_str_hash, g_str_equal,
       g_free, gabble_private_tubes_factory_free_feat);
-  g_hash_table_foreach (caps_in->stream_tube_caps, copy_caps_helper,
-      caps_out->stream_tube_caps);
+  tp_g_hash_table_update (caps_out->stream_tube_caps,
+      caps_in->stream_tube_caps, (GBoxedCopyFunc) g_strdup,
+      (GBoxedCopyFunc) copy_caps);
 
   caps_out->dbus_tube_caps = g_hash_table_new_full (g_str_hash, g_str_equal,
       g_free, gabble_private_tubes_factory_free_feat);
-  g_hash_table_foreach (caps_in->dbus_tube_caps, copy_caps_helper,
-      caps_out->dbus_tube_caps);
+  tp_g_hash_table_update (caps_out->dbus_tube_caps,
+      caps_in->dbus_tube_caps, (GBoxedCopyFunc) g_strdup,
+      (GBoxedCopyFunc) copy_caps);
 
   caps_out->tubes_supported = caps_in->tubes_supported;
 
@@ -773,9 +771,11 @@ gabble_private_tubes_factory_update_caps (
     return;
 
   tp_g_hash_table_update (caps_out->stream_tube_caps,
-      caps_in->stream_tube_caps, (GBoxedCopyFunc) g_strdup, NULL);
+      caps_in->stream_tube_caps, (GBoxedCopyFunc) g_strdup,
+      (GBoxedCopyFunc) copy_caps);
   tp_g_hash_table_update (caps_out->dbus_tube_caps,
-      caps_in->dbus_tube_caps, (GBoxedCopyFunc) g_strdup, NULL);
+      caps_in->dbus_tube_caps, (GBoxedCopyFunc) g_strdup,
+      (GBoxedCopyFunc) copy_caps);
 }
 
 static gboolean
@@ -880,11 +880,11 @@ gabble_private_tubes_factory_add_self_capability (
 
   if (!tp_strdiff (channel_type, TP_IFACE_CHANNEL_TYPE_STREAM_TUBE))
     {
-      Feature *feat = g_new0 (Feature, 1);
       gchar *service = g_strdup (tp_asv_get_string (cap,
           TP_IFACE_CHANNEL_TYPE_STREAM_TUBE ".Service"));
       if (service != NULL)
         {
+          Feature *feat = g_new0 (Feature, 1);
           feat->feature_type = FEATURE_OPTIONAL;
           feat->ns = g_strdup_printf ("%s/stream#%s", NS_TUBES, service);
           feat->caps = 0;
@@ -893,11 +893,11 @@ gabble_private_tubes_factory_add_self_capability (
     }
   else if (!tp_strdiff (channel_type, TP_IFACE_CHANNEL_TYPE_DBUS_TUBE))
     {
-      Feature *feat = g_new0 (Feature, 1);
       gchar *service = g_strdup (tp_asv_get_string (cap,
           TP_IFACE_CHANNEL_TYPE_DBUS_TUBE ".ServiceName"));
       if (service != NULL)
         {
+          Feature *feat = g_new0 (Feature, 1);
           feat->feature_type = FEATURE_OPTIONAL;
           feat->ns = g_strdup_printf ("%s/dbus#%s", NS_TUBES, service);
           feat->caps = 0;

@@ -31,7 +31,6 @@ static const LocationMapping mappings[] = {
   { "building", "building", G_TYPE_STRING },
   { "country", "country", G_TYPE_STRING },
   { "description", "description", G_TYPE_STRING },
-  { "error", "error", G_TYPE_DOUBLE },
   { "floor", "floor", G_TYPE_STRING },
   { "lat", "lat", G_TYPE_DOUBLE },
   { "locality", "locality", G_TYPE_STRING },
@@ -44,7 +43,7 @@ static const LocationMapping mappings[] = {
   { "text", "text", G_TYPE_STRING },
   { "timestamp", "timestamp", G_TYPE_INT64 },
   { "uri", "uri", G_TYPE_STRING },
-  /* Not (yet?) part of XEP-0080 */
+  { "accuracy", "accuracy", G_TYPE_DOUBLE },
   { "countrycode", "countrycode", G_TYPE_STRING },
   /* language is a special case as it's not mapped on a node but on the
    * xml:lang attribute of the 'geoloc' node. */
@@ -537,19 +536,21 @@ conn_location_fill_contact_attributes (GObject *obj,
     {
       TpHandle handle = g_array_index (contacts, TpHandle, i);
       GHashTable *location;
+      GValue *val;
 
       location = get_cached_location_or_query (self, handle, NULL);
       if (location != NULL)
-        {
-          GValue *val = tp_g_value_slice_new_boxed (
-              TP_HASH_TYPE_STRING_VARIANT_MAP, location);
+        g_hash_table_ref (location);
+      else
+        location = g_hash_table_new (NULL, NULL);
 
-          tp_contacts_mixin_set_contact_attribute (attributes_hash,
-            handle, TP_IFACE_CONNECTION_INTERFACE_LOCATION"/location",
-            val);
+      val = tp_g_value_slice_new_boxed (TP_HASH_TYPE_STRING_VARIANT_MAP,
+          location);
 
-          g_hash_table_unref (location);
-        }
+      tp_contacts_mixin_set_contact_attribute (attributes_hash,
+          handle, TP_IFACE_CONNECTION_INTERFACE_LOCATION"/location", val);
+
+      g_hash_table_unref (location);
     }
 }
 
