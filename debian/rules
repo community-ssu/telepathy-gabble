@@ -13,6 +13,8 @@ common-binary-post-install-arch:: list-missing
 DEB_CONFIGURE_LIBEXECDIR := "\$${prefix}/lib/telepathy"
 DEB_CONFIGURE_EXTRA_FLAGS := --disable-assumed-ft-cap
 
+CFLAGS := -O2
+
 # this has a tight dependency, so we can symlink the doc directories together
 DEB_INSTALL_DOCS_telepathy-gabble-dbg := --no-act
 DEB_INSTALL_CHANGELOGS_telepathy-gabble-dbg := --no-act
