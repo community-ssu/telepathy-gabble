@@ -2752,8 +2752,9 @@ stream_creation_data_free (gpointer p)
   if (d->self != NULL)
     {
       GabbleMediaChannelPrivate *priv = d->self->priv;
+      GabbleMediaChannel **selfptr = &d->self;
 
-      g_object_remove_weak_pointer (G_OBJECT (d->self), (gpointer *) &d->self);
+      g_object_remove_weak_pointer (G_OBJECT (d->self), (gpointer *) selfptr);
       priv->stream_creation_datas = g_list_remove (
           priv->stream_creation_datas, d);
     }
@@ -2832,6 +2833,7 @@ create_stream_from_content (GabbleMediaChannel *self,
 {
   gchar *name;
   StreamCreationData *d;
+  GabbleMediaChannel **selfptr;
 
   g_object_get (c,
       "name", &name,
@@ -2851,7 +2853,8 @@ create_stream_from_content (GabbleMediaChannel *self,
   d->content = g_object_ref (c);
   d->initial = initial;
 
-  g_object_add_weak_pointer (G_OBJECT (d->self), (gpointer *) &d->self);
+  selfptr = &d->self;
+  g_object_add_weak_pointer (G_OBJECT (d->self), (gpointer *) selfptr);
 
   /* If the content gets removed before we've finished looking up its
    * relay, we need to cancel the creation of the stream,
