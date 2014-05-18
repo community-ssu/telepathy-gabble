@@ -34,7 +34,6 @@ _gen
 core
 /data/gabble.manager
 /data/org.freedesktop.Telepathy.ConnectionManager.gabble.service
-/debian
 /depcomp
 /docs/*.html
 /docs/telepathy-gabble.8
