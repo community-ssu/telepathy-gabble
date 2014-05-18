@@ -1,0 +1,1867 @@
+telepathy-gabble (0.8.13-0maemo3+0m5) fremantle; urgency=low
+
+  * This entry has been added by BIFH queue processor
+    version has been changed to 0.8.13-0maemo3+0m5
+
+ -- Mahawadhi Ratna <ext-ratna.2.mahawadhi@nokia.com>  Tue, 22 Jun 2010 14:38:15 +0300
+
+telepathy-gabble (0.8.13-0maemo3) fremantle; urgency=low
+
+  * Accept any domain with Unicode in it, rather than declaring valid
+    domains containing Unicode to be invalid and dropping all messages
+    from such JIDs.  Fixes: NB#152729 - XMPP IDN broken.
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Thu, 17 Jun 2010 11:12:57 +0100
+
+telepathy-gabble (0.8.13-0maemo2) fremantle; urgency=low
+
+  * Turn off whitespace pings and presence pushes on Google Talk connections
+    when the device is idle. Fixes: NB#156164 (Google Talk sends whitespace
+    pings every 30 seconds)
+  * Disable cast checks on non-debug builds. References NB#162166.
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Tue, 08 Jun 2010 17:37:44 +0100
+
+telepathy-gabble (0.8.13-0maemo1) fremantle; urgency=low
+
+  * Expose “MUC full” as Busy on the Group interface. References
+    NB#157089: 'Chatroom Conversation View' is opened from invitation
+    dialog even the chatroom is full
+  * Fix a crash in tube capabilities.
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Mon, 19 Apr 2010 15:35:17 +0100
+
+telepathy-gabble (0.8.11-0maemo2) fremantle; urgency=low
+
+  * Don't crash when disabling camera in a video call before the call
+    is established. Fixes: NB#153299.
+
+ -- Senko Rasic <senko.rasic@collabora.co.uk>  Mon, 22 Feb 2010 13:12:33 +0100
+
+telepathy-gabble (0.8.11-0maemo1) fremantle; urgency=low
+
+  * New upstream release.
+  * Correctly generate capability hashes when compiled with
+    --enable-is-a-phone. Fixes NB#156186 (“After disconnecting and connecting
+    to network call capability is lost for sometime for voip contacts”).
+
+ -- Dafydd Harries <daf@debian.org>  Wed, 17 Feb 2010 11:58:08 -0500
+
+telepathy-gabble (0.8.10-0maemo3) fremantle; urgency=low
+
+  * Correctly label NB#144921 as fixed.
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Tue, 02 Feb 2010 11:12:53 +0000
+
+telepathy-gabble (0.8.10-0maemo2) fremantle; urgency=low
+
+  * Add build-dependency on libsqlite3-dev.
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Fri, 29 Jan 2010 08:22:42 +0000
+
+telepathy-gabble (0.8.10-0maemo1) fremantle; urgency=low
+
+  * New upstream release.
+  * Contacts' capablities are cached when possible, meaning less capability
+    discovery requests, and hence less traffic when signing in.
+    Fixes: NB#144921 (“Gabble uses a ridiculous amount of bandwidth on signing
+    in”).
+  * The --enable-is-a-phone configuration flag was added upstream; this is
+    enabled on Maemo so that contacts can make resource selection decisions
+    for calls based on this.
+
+ -- Dafydd Harries <daf@debian.org>  Thu, 28 Jan 2010 17:22:21 -0500
+
+telepathy-gabble (0.8.9-0maemo1) fremantle; urgency=low
+
+  * New upstream release 0.8.9.
+  * Gabble now advertises a 'pmuc-v1' capability bundle, telling the Google
+    Mail client that we support being invited to MUCs, and MUC servers are no
+    longer sent a service discovery request the first time you request a
+    handle for a room on that server. This allows Gabble to be invited to and
+    thus join Google Talk MUCs. Fixes NB#148739 (Support being invited to, and
+    joining, Google Talk multi-user chats)
+  * Gabble only advertises support for file transfers if a handler is
+    available, and only probes socks5 proxy servers when needed.
+    Fixes: NB#135965 (Rover advertises File Transfer capabilities even though
+    it doesn't have any.)
+  * Always assume that MUC servers will let us change the subject, mitigating
+    fd.o #13157; previously we assumed they would only let moderators change
+    the subject. Fixes NB#143698 (Gabble should assume topic can be written,
+    even though it can't tell for sure)
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Mon, 07 Dec 2009 18:33:36 +0000
+
+telepathy-gabble (0.8.8-0maemo1) fremantle; urgency=low
+
+  * New upstream release 0.8.8.
+  * The StreamedMedia.ImmutableStreams property on channels may now take
+    values other than False.
+  * The default resource is now unique to the machine Gabble is running
+    on, rather than being randomly generated for each connection. Fixes
+    fd.o#23630: “Per-connection resource randomization increases the
+    window in which you lose messages”. Fixes: NB#135903 (Messages are
+    not received after changing connection type)
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Mon, 09 Nov 2009 18:11:38 +0000
+
+telepathy-gabble (0.8.7-0maemo1) fremantle; urgency=low
+
+  * New upstream release 0.8.7
+  * fd.o#24398: don't trust other people's message IDs to be as unique as ours.
+    Fixes: NB#138610 - Incoming messages are not visible
+
+ -- Simon McVittie <simon.mcvittie@collabora.co.uk>  Wed, 14 Oct 2009 14:44:41 +0100
+
+telepathy-gabble (0.8.6-0maemo1) fremantle; urgency=low
+
+  * New upstream release 0.8.6.
+  * telepathy-glib 0.7.37 or later is now required.
+  * The Immutable_Streams pseudo-capability and ImmutableStreams
+    property for Streamed Media channels, which indicate that video
+    cannot be added after an audio-only call has started, are now
+    implemented (primarily for Google Video Chat contacts).  UIs may use
+    these flags to determine whether to show separate “audio call” and
+    “video call” options, or a single “call” option, for example.
+  * The undrafted InitialAudio and InitialVideo properties are now
+    implemented (with the DRAFT variants still present and functional
+    for backwards-compatibility).
+  * Don't repeatedly request our own vCard when we don't have an avatar,
+    and fix an assertion. fd.o#23684.
+  * The connection process now times out after a minute if the server
+    stops responding. Fixes fd.o#24135. Fixes: NB#135866 (Presence keeps
+    on blinking forever when using WANO network)
+  * Don't wait for more capabilities if we already know a contact's
+    callable.
+  * We now remember what our own current and past capabilities hashes
+    mean, which prevents us unnecessarily discoing other Gabbles, and
+    works around an iChat bug where returning <item-not-found/> for a
+    disco request just makes it try again and again.
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Fri, 09 Oct 2009 12:44:25 +0100
+
+telepathy-gabble (0.8.5-0maemo1) fremantle; urgency=low
+
+  * New upstream releases 0.8.4 and 0.8.5, the latter fixing a
+    regression in 0.8.4.
+  * Jingle call interoperability with Pidgin and Gajim.
+    Fixes: NB#141483.
+  * When receiving a file, Gabble now closes the local socket once all
+    the data has been written.
+  * fd.o #24043: Doesn't parse candidates in a Jingle session-accept
+    stanza. This fix lets us interoperate with Pidgin's Jingle
+    implementation.
+  * fd.o #24023: Accepting initial streams for a call is racy.
+  * fd.o #20629: DBus events in tests should contain full path.
+  * fd.o #22795: jingle/google-relay.py is secretly made of cheese.
+  * fd.o #23903: Gabble crashes in File Transfer.
+  * fd.o #23685: build Gibber with fno-strict-aliasing so asyncns.c
+    builds with new GCC.
+  * fd.o #20565: Contacts should be initially offline and not unknown.
+    Fixes: NB#105037.
+  * When members are removed from a call due to a stream error, always
+    indicate so. References: NB#134426 (Missed call is registered as
+    Received call when caller's battery is removed.)
+  * Fix corner cases in SetLocation()'s language handling.
+    Fixes: NB#137278 (Fix potential NULL pointer usage)
+  * fd.o #24195: Doesn't think clients without google p2p tranport are
+    media capable. This fix lets us interoperate with Gajim's Jingle
+    implementation.
+  * Make stun-server.py not fail if the default STUN server hostname
+    can't be resolved.
+  * fd.o #23684: Gabble advertizes an avatar's sha1 in its presence
+    stanza without following XEP-0153.  Fixes: NB#135783 (One single
+    contact can make your device
+  * Honour errors that tell us to wait and try again when fetching
+    vCards.
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Fri, 02 Oct 2009 20:39:30 +0100
+
+telepathy-gabble (0.8.3-0maemo1) fremantle; urgency=low
+
+  * New upstream release 0.8.3.
+  * This release includes all of the fixes in 0.8.1+3f2c10+fdbda83-0osso1.
+  * fd.o #23681: Allow setting presence on a connection before it goes
+    online.  This avoids e.g. going from Available -> Busy immediately
+    when signing on. Fixes: NB#95112 (After changing presence from
+    Offline to Busy, presence is in Online mode for few seconds)
+  * fd.o #23684: fix handling of avatar conflict with several resources,
+    and a possible infinite ping-pong of presence stanzas from the
+    server. References: NB#135783 (One single contact can make your
+    device unusable)
+  * Time out disco requests after 20, not 20,000, seconds!
+    Fixes: NB#137573 (Gtalk calls doesn't get established after changing
+    the Access Point).
+  * Correctly respond to disco requests for video-v1 bundle, avoiding a
+    loop when iChat blindly retries failed disco requests
+  * Fix Requested and State properties of muc D-Bus tubes that we
+    previously created and are still present when we re-join the muc.
+    These tubes are now listed in Tubes.ListTubes(). fd.o #23678.
+  * Don't send the same disco request to the same (full) JID more than
+    once. fd.o #23841.
+  * Update the Jingle raw-udp and ice-udp namespaces we claim to support
+    to the current version.
+  * fd.o #23348, #23349: fix compilation on NetBSD by including more
+    headers
+  * fd.o #21327: force ISO date format in ChangeLog
+  * Reduce the size of the ChangeLog by truncating at version 0.6.0 and
+    not including diffstats (previously, the changelog.gz in our Debian
+    packages was larger than Gabble itself!)
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Thu, 10 Sep 2009 19:57:19 +0100
+
+telepathy-gabble (0.8.2-0osso2) fremantle; urgency=low
+
+  * New upstream release 0.8.2
+  * Improve jid validation, so that obviously-invalid jids are rejected.
+    While Gabble still doesn't do full nodeprep, but this will catch
+    most cases in practice.  Fixes: NB#103793 (Gabble should validate
+    JIDs with Nodeprep.)
+  * Fix parsing of incoming session accept from Google Video Chat. This
+    should make outgoing calls to Google Video Chat users work, as well
+    as incoming calls.
+  * Re-add Google Video capability for this development release.
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Fri, 04 Sep 2009 09:38:26 +0100
+
+telepathy-gabble (0.8.1+3f2c10-0osso1) fremantle; urgency=low
+
+  * Crash fixes, which will also be in 0.8.2. Namely:
+  * Don't crash when a vCard set fails and there are pending edits.
+    Fixes: NB#135382 (New coredumps in vcard_copy())
+  * Fix a crash when advertising tube caps without Service{,Name}
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Thu, 03 Sep 2009 17:47:46 +0100
+
+telepathy-gabble (0.8.1-0maemo3) fremantle; urgency=low
+
+  * Knock out Google Video capability, since we don't currently interoperate
+    correctly with Google's client, so we don't want Google users to try to
+    video call us and have it always fail.
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Fri, 21 Aug 2009 17:29:01 +0100
+
+telepathy-gabble (0.8.1-0maemo1) fremantle; urgency=low
+
+  * New upstream release 0.8.1.
+  * fd.o#22535: Gabble no longer crashes if you disconnect while it's
+    trying to start a Google relay session for a call. This should have
+    been fixed in 0.7.31, but it's really fixed now. :-) Should fix
+    NB#133464 and NB#130013.
+  * Fix an occasional crash when PEP requests time out, or are cancelled
+    when you disconnect.
+  * Correct an assertion about vCard edits not to fire incorrectly.
+    Fixes: NB#133408
+  * Clarify some correct-but-confusing behaviour in libjingle 0.3 mode,
+    which fixes a Coverity false-positive (as seen in NB#133934 and
+    NB#134087).
+  * Reinstate timing out outgoing calls if they're not answered for a
+    minute. Fixes NB#133050.
+  * Bump telepathy-glib build-dep to 0.7.34.
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Thu, 20 Aug 2009 21:23:38 +0100
+
+telepathy-gabble (0.8.0-0maemo1) fremantle; urgency=low
+
+  * New upstream release 0.8.0.
+  * Fixes #111774 (some avatars not fetches).
+  * Fixes #133408 (crashes in vCard code).
+
+ -- Dafydd Harries <dafydd.harries@collabora.co.uk>  Wed, 19 Aug 2009 14:38:06 +0100
+
+telepathy-gabble (0.7.32-0maemo3) fremantle; urgency=low
+
+  * depends now on python2.5 adapted debian/control file
+
+ -- Reto Zingg <reto.zingg@nokia.com>  Mon, 10 Aug 2009 11:10:57 +0300
+
+telepathy-gabble (0.7.32-0maemo2) fremantle; urgency=low
+
+  * Re-release, having corrected the previous release's changelog...
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Sun, 09 Aug 2009 16:39:40 +0100
+
+telepathy-gabble (0.7.32-0maemo1) fremantle; urgency=low
+
+  * New upstream release 0.7.32
+  * fd.o #21153: Remove session initiation and content add timeouts from
+    the Jingle code; this should be client policy.  Fixes: NB#129306,
+    and also NB#127110.
+  * fd.o #22023: Correctly avoid trying to set your vCard twice at the
+    same time.
+  * Correctly parse file-transfer timestamps. References fd.o #23168.
+  * Correctly fall back to stun.collabora.co.uk if neither the user nor
+    the server has any better STUN server suggestions.
+  * Fix issues found by Coverity in #130512
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Sun, 09 Aug 2009 13:03:00 +0100
+
+telepathy-gabble (0.7.31-0maemo2) fremantle; urgency=low
+
+  * NB#109875 is a typo, should be 109785, adapt changelog
+
+ -- Reto Zingg <reto.zingg@nokia.com>  Mon, 27 Jul 2009 13:59:42 +0300
+
+telepathy-gabble (0.7.31-0maemo1) fremantle; urgency=low
+
+  * New upstream release 0.7.31
+  * Remove patches from 0.7.30-0maemo2, which are included in 0.7.31
+  * Fixes: NB#109785 - Deleted IM-contact reappears after reopening the
+    application
+  * Fixes: NB#128608 - telepathy-gabble can crash when called via
+    gtalk2voip.com by sipphone.com
+
+ -- Simon McVittie <simon.mcvittie@collabora.co.uk>  Wed, 22 Jul 2009 19:42:25 +0100
+
+telepathy-gabble (0.7.30-0maemo2) fremantle; urgency=low
+
+  * Backport "Destroy JingleFactory's soup session first" from master.
+    Fixes: NB#120602 (Crashes in _jingle_factory_unregister_session (from
+    on_http_response))
+    Fixes: NB#120387 (telepathy-gabble-7824-6-1379.rcore.lzo crashed)
+  * Backport "Force codec names' cases to match Google Talk" from master.
+    Fixes: NB#125552 (Send codec names in the case GTalk expects.)
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Wed, 01 Jul 2009 17:24:36 +0100
+
+telepathy-gabble (0.7.30-0maemo1) fremantle; urgency=low
+
+  * New upstream release 0.7.30.
+  * Gabble now supports making and receiving video calls to contacts
+    using Google Video Chat <http://mail.google.com/videochat>. You'll
+    need an H264 codec.  We're aware of an issue where sometimes the
+    Google client never sends us video; we're investigating it, and
+    hopefully it'll be resolved soon.
+  * The default port is now 5222, rather than unset. If you specify
+    port=5222 and don't specify a server or old-ssl, Gabble will make an
+    SRV lookup anyway: this is kinder to UIs that want to show the
+    default XMPP port as 5222. References: NB#122849 (Incorrectly
+    explicitly sets 'port' parameter)
+  * Gabble now advertises support for up-to-date Jingle namespaces, and
+    implements the raw UDP and ICE-UDP transports as well as the
+    non-standard Google Talk P2P transport. (fd.o #22458 and #13158,
+    respectively.)
+  * fd.o #22369: Gabble now replies to the XMPP resource that's sending
+    you messages, rather than always sending messages to the peer's bare
+    JID.
+  * The keepalive-interval parameter actually works now (previously,
+    setting it caused a critical warning, and did not change the actual
+    value from the default). Fixes: NB#117539 (Support for keepalive
+    setting in telepathy-gabble)
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Mon, 29 Jun 2009 16:52:51 +0100
+
+telepathy-gabble (0.7.29-0maemo1) fremantle; urgency=low
+
+  * New upstream release 0.7.29.
+  * Bump telepathy-glib dependency to 0.7.31 (which should have been done in
+    the previous release).
+  * Implement o.fd.Tp.Debug interface.
+  * Added a "keepalive-interval" connection parameter (signature 'u'),
+    allowing the time between keepalive pings to the server to be configured
+    (or disabled, by specifying 0). Fixes: NB#117539
+  * fd.o #21966: Gabble no longer crashes if you use the Hold interface before
+    a call starts. You can put a call on hold even before it's initiated. You
+    can also put an incoming, unanswered call on hold, but you have to unhold
+    it before accepting the call.
+  * The above also fixes (in passing) a reported issue where calls are
+    signalled as having been put on hold just before they terminate.
+  * fd.o #20807: Gabble no longer crashes on unknown Jingle actions.
+  * fd.o #16886: You can now leave MUCs with a part message by calling
+    RemoveMembers([self_handle], "this room is boring"). Gabble now complies
+    with telepathy-spec 0.17.21's requirement that you can always remove
+    yourself from a group if you're in it, fixing fd.o #20728.
+  * fd.o #18951: Gabble no longer sends <gone/> to contacts it hasn't
+    previously sent typing notifications or messages to.
+  * fd.o #22209: Gabble no longer confuses Jingle sessions which have the same
+    session ID but are to different contacts.
+  * fd.o #20763: Gabble now correctly namespaces Jingle contents by their
+    creator, rather than (buggily) attempting to make the initiator's content
+    win. Fixes: NB#108446; References: NB#121672.
+  * fd.o #22326: Gabble now correctly handles presence stanzas for bare JIDs
+    that contain capabilities, rather than ignoring them or (in really
+    unlikely cases) crashing. Fixes: NB#116398. Fixes: NB#114156.
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Fri, 19 Jun 2009 15:51:36 +0100
+
+telepathy-gabble (0.7.28-0maemo1) fremantle; urgency=low
+
+  * New upstream version 0.7.28:
+  * Implement the final, stable new API for tubes.
+  * When no resource is explicitly specified, Gabble will now use a
+    randomized resource ("Telepathy.[random numbers]") rather than just
+    "Telepathy". This helps users who don't know anything about XMPP to
+    be able to connect from multiple Telepathy-powered clients at once.
+    (fd.o #21297) Fixes: NB#112096
+  * Gabble now implements the 'stored' contact list, added in
+    telepathy-spec 0.17.12. It no longer implements the 'known' list,
+    which was never standard; we don't think this will break clients,
+    since other CMs (such as telepathy-haze) never implemented 'known'.
+    (fd.o #19901) Fixes: NB#118054
+  * This will let the Fremantle addressbook use 'stored' for all CMs.
+  * Incoming call state notifications (ringing, on hold, etc.) are now
+    handled in line with the latest draft of XEP-0167. (fd.o #21836)
+  * Also, incoming ringing events are synthesized when not supported by
+    the protocol, and outgoing ringing and active events are sent if
+    they are. Fixes: NB#119097
+  * fd.o #21684: Don't crash in SessionHandler.Ready() if streams is
+    NULL. Fixes: NB#115031
+  * fd.o #21817: Sometimes crashes upon receiving an empty <nick/>
+    update. Fixes: NB#112242
+  * fd.o #21547: Contacts removed from roster stay on
+    subscribe:remote-pending.  It's conceivable that this fix could
+    cause regressions, since the bug was introduced while working around
+    some GTalk roster bugs. As discussed on the fd.o bug, the bug being
+    worked around appeared to be to do with roster updates when a
+    contact accepts your subscription. That workaround has not been
+    removed, so with any luck this should be okay. Fixes: NB#101382
+  * fd.o #21878: Adding a new stream while a call's on hold makes it
+    fall back to Pending Hold. Fixes: NB#100365
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Mon, 01 Jun 2009 19:08:49 +0100
+
+telepathy-gabble (0.7.27-0maemo1) fremantle; urgency=low
+
+  * New upstream version 0.7.26
+    - Support file transfer resume.
+    - Use ContactCapabilities draft to communicate file transfer support.
+    - Implement latest draft of new API for tubes. The
+      {Offer,Accept}{DBus,Stream}Tube methods and the
+      StreamTubeNewConnection signal have been renamed.
+    - The build system now uses Shave to produce kernel-style easy-to-read
+      output from make. (You need to explicitly enable this with
+      ./configure --enable-shave.)
+    - It is now possible to request StreamedMedia channels with audio and/or
+      video from the start, using the InitialAudio and InitialVideo
+      properties, and to see from a channel's immutable properties (as also
+      seen in NewChannels) whether it (initially) contained audio and/or
+      video. (References fd.o#20830.)
+    - Include private D-Bus tube and all MUC tube channels in Requests's
+      Channels property.
+    - StreamedMedia channels' group flags are now more spec-compliant.
+      (Fixes fd.o#20578.)
+    - When a contact doesn't have an alias, their full JID is used as the
+      fallback, rather than the local part. (Fixes fd.o#21295.)
+      * Fixes NB#112040
+    - When setting an avatar fails, an appropriate error is now emitted.
+      (Fixes fd.o#20442 (not #20422 as the git history claims).)
+      * Fixes NB#104066
+    - The lifecycles of several Jingle-related objects have been cleared up,
+      fixing a number of Jingle crashes.
+      * Fixes NB#110983
+      * Fixes NB#111064
+      * Fixes NB#107348
+    - Make registration more XEP-compliant.
+      * Fixes NB#110318.
+    - Expose <host-unknown> during login as Auth_Failed. (fd.o#21221)
+      * Fixes NB#111120
+  * Don't run autoreconf on ~every debian/rules target.
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Thu, 07 May 2009 16:33:01 +0100
+
+telepathy-gabble (0.7.26-0maemo1) fremantle; urgency=low
+
+  * New upstream version 0.7.25
+    - Depends on telepathy-glib 0.7.29.
+    - Discover SOCKS5 proxies on the connection and try to use them when
+      offering a SOCKS5 bytestream.
+    - Add fallback-socks5-proxies connection parameter to hardcode
+      SOCKS5 proxies to use as fallback. Set lot of public proxies as
+      default.
+    - Use IPv6 addresses when trying to establish a SOCKS5 bytestream.
+    - Implement Channel.Type.FileTransfer. This means you can now send
+      and receive files using Gabble.
+    - Gabble now gives useful reasons in MembersChanged for Jingle
+      calls, rather than always emitting None as the reason.
+      * Fixes: NB#104296 - " No answer " banner is not shown if the call
+        is not answered.
+      * References: NB#104315 - " Call disconneted " info banner showed
+        if the other party is busy.
+  * New upstream version 0.7.26
+    - When placing a streamed media call on hold, transmit the status
+      change to the peer.
+    - Relatedly, expose incoming Ringing and Hold notifications through the
+      CallState interface.
+      * Fixes: NB#104551 - "Gabble doesn't send hold/unhold notification
+        to peer"
+      * Fixes: NB#104455 - "Multicalls: Audio quality is poor during
+        VOIP calls"
+    - Raise Offline or NotCapable (rather than NotAvailable) when methods in
+      Jingle calls fail for one of those reasons.
+      * Fixes: NB#106885 - "Wrong info banner is displayed when the
+        contact is not available."
+    - Implement the Avatar interface's D-Bus properties, as introduced in
+      spec version 0.17.22
+  * Bump telepathy-glib build dependency to 0.7.29
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Wed, 08 Apr 2009 19:00:00 +0100
+
+telepathy-gabble (0.7.24-0maemo1) fremantle; urgency=low
+
+  * New upstream version 0.7.24
+    - All messages on the Messages interface now have a message token, using
+      the XMPP id attribute. Identifiers for messages that Gabble sends, and
+      those it receives that lack one, are generated with libuuid if
+      available, or with a unique-ish time-based fallback otherwise.
+    - Fix SOCKS5 implementation to actually respect XEP-0065.
+    - Don't crash if Google relay responses arrive after the call has ended
+      (Fixes NB#106913).
+    - Relax overly-strict checks made by CodecsUpdated (fixed issues found at
+      video call code camp)
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Tue, 24 Mar 2009 00:23:32 +0000
+
+telepathy-gabble (0.7.23-0maemo2) fremantle; urgency=low
+
+  * Move to git (no source changes except to .gitignore files)
+
+ -- Simon McVittie <simon.mcvittie@collabora.co.uk>  Thu, 19 Mar 2009 16:00:10 +0000
+
+telepathy-gabble (0.7.23-0maemo1) fremantle; urgency=low
+
+  [ Will Thompson ]
+  * New upstream release 0.7.23
+    - Add functionality to ask for a Google-specific relay session, so Google
+      Talk users can use Google's relay servers to make and receive Jingle calls
+    - The CodecsUpdated method, introduced in spec version 0.17.19 and used to
+      send updated parameters for codecs such as Theora and H264 to the other
+      party in a call, is now implemented; incoming description-info stanzas
+      containing updated codec parameters are exposed as emissions of
+      SetRemoteCodecs.
+    - Fix flow control in tubes when using a SI fallback bytestream
+    - Implement flow control in bytestream IBB. This should avoid flooding the
+      XMPP connection when trying to send a large amount of data using IBB.
+    - Make GetHandle() correspond to the TargetHandle[Type] properties on
+      streamed media channels, and further improve Jingle regression test
+      coverage.
+  * Bump build dependency on telepathy-glib to 0.7.26
+  * Add build dependency on libsoup
+
+  [ Simon McVittie ]
+  * Change suffix to -0maemo1 to match current Maemo convention
+
+ -- Simon McVittie <simon.mcvittie@collabora.co.uk>  Mon, 16 Mar 2009 16:07:34 +0000
+
+telepathy-gabble (0.7.22-0osso1) fremantle; urgency=low
+
+  * New upstream release 0.7.22:
+    - Resolve STUN servers' IP addresses as required by telepathy-spec changes
+      currently under development
+    - Add NATTraversal, STUNServers and CreatedLocally properties to
+      Media.StreamHandler as required by telepathy-spec changes currently
+      under development
+    - Add fallback-stun-server, fallback-stun-port ConnectionManager
+      parameters
+    - Correctly deal with streams that are added after a call is accepted,
+      fixing video streaming in calls that start off audio-only
+    - fd.o #20102: fix byte ordering of port in GibberListener
+    - Drain some swamps in Jingle call handling for better maintainability,
+      and improve Jingle regression test coverage
+    - Don't end calls a minute after an extra content is added, and correctly
+      set the creator attribute on contents. This has the side-effect of not
+      causing older Gabbles to assert.
+    - Improve Tubes test coverage, and fix various races in the tests.
+  * Updated build dependency on telepathy-glib to 0.7.24
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Mon, 02 Mar 2009 18:37:08 +0000
+
+telepathy-gabble (0.7.21-0osso2) fremantle; urgency=low
+
+  * Fix accepting streams added after a call is accepted.
+    - Patch cherry-picked from Gabble master.
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Thu, 26 Feb 2009 13:53:34 +0000
+
+telepathy-gabble (0.7.21-0osso1) fremantle; urgency=low
+
+  * New upstream release 0.7.21:
+    - Implement the Messages interface for Text channels
+    - Implement new tubes APIs
+    - Fix various bugs where idle callbacks outlived their user-data (fd.o
+      #20133)
+        (Fixes: NB#99951, NB#101827)
+    - Fix a related crash on terminating calls
+        (Fixes: NB#102034)
+    - Don't start sending video without prompting when the other side adds a
+      video stream.
+        (Fixes: NB#100347)
+  * Updated build dependency on telepathy-glib to 0.7.23
+
+ -- Will Thompson <will.thompson@collabora.co.uk>  Fri, 20 Feb 2009 10:35:34 +0000
+
+telepathy-gabble (0.7.20-0osso1) fremantle; urgency=low
+
+  * New upstream release 0.7.18:
+    - don't crash on setting presence if there are open MUC tubes
+    - improve the D-Bus API of stream tubes
+    - implement SOCKS5 out-of-band transfer for stream tubes
+  * New upstream release 0.7.19:
+    - don't crash when closing a MUC channel containing a closed D-Bus tube
+    - don't resurrect removed streams if the call responder includes them in
+      session-accept
+    - don't crash in calls if using a debug build of GLib (fd.o #19327)
+    - don't crash when contacts are removed from the known list (fd.o #19524)
+        (Fixes: NB#97854)
+    - fix D-Bus MUC tubes (dev.sugarlabs.org #60)
+    - fix refcount leak in Jingle code (fd.o #19385) (Fixes: NB#99332)
+    - don't crash if offline presence status is requested (Fixes: NB#91508)
+    - use InvalidHandle instead of InvalidArgument in RequestHandles if
+        string id is invalid (Fixes: NB#97045)
+  * New upstream release 0.7.20:
+    - implement geolocation draft from telepathy-spec 0.17.19
+    - announce generic tube capabilities when contacts support tubes
+    - don't get confused if a MUC service auto-renames us
+    - don't get confused if we have to change our own nick in order to join
+      a MUC
+    - emit Close and ChannelClosed signals when a new-API tube is closed
+
+ -- Simon McVittie <simon.mcvittie@collabora.co.uk>  Tue, 03 Feb 2009 14:42:59 +0000
+
+telepathy-gabble (0.7.17-0osso1) fremantle; urgency=low
+
+  * New upstream release 0.7.17:
+     - implement draft ContactCapabilities spec for tube capabilities
+     - fix automatically accepting incoming calls (Fixes: NB#95601)
+     - fix accepting MUC invites when changing presence
+  * Updated build dependencies: dbus >= 1.1, dbus-glib >= 0.78
+
+ -- Robert McQueen <robert.mcqueen@collabora.co.uk>  Mon, 15 Dec 2008 02:32:16 +0000
+
+telepathy-gabble (0.7.16-0osso1) fremantle; urgency=low
+
+  * new upstream release 0.7.16
+    - merged new Jingle code with support for new gtalk and new jingle
+      standard
+    - misc tubes-related fixes
+    - fix for double freeing in dispose in channel managers
+    - fix race condition in tests/twisted/roster/ensure.py
+
+ -- Senko Rasic <senko.rasic@collabora.co.uk>  Tue, 02 Dec 2008 22:00:14 +0100
+
+telepathy-gabble (0.7.15-1osso2) UNRELEASED; urgency=low
+
+  * Actually sync packaging with Debian (no functional changes)
+
+ -- Simon McVittie <simon.mcvittie@collabora.co.uk>  Thu, 06 Nov 2008 10:48:49 +0000
+
+telepathy-gabble (0.7.15-1osso1) fremantle; urgency=low
+
+  * New upstream release 0.7.15
+    - fix compatibility with Farsight 2 media signalling
+    - add Interfaces property to NewChannels signals and
+      CreateChannel/EnsureChannel results
+    - don't advertise StreamedMedia channels with handle type NONE as
+      requestable via the new API (they are not)
+    - fd.o #17770: remove redundant handle validation
+
+ -- Simon McVittie <simon.mcvittie@collabora.co.uk>  Thu, 06 Nov 2008 10:20:27 +0000
+
+telepathy-gabble (0.7.14-1osso1) fremantle; urgency=low
+
+  * New upstream releases 0.7.11, 0.7.12, 0.7.13
+    - fix a memory leak in sha1_bin
+    - various Tubes/OLPC changes
+  * New upstream release 0.7.14
+    - require telepathy-glib 0.7.18
+    - implement spec 0.17.14
+      - implement Destroyable on IM channels
+      - set the RESCUED flag on messages in respawned IM channels
+      - set the SCROLLBACK flag on discussion history in MUC channels
+    - various Tubes changes
+  * Drop the one remaining Maemo-specific change, which was to avoid
+    explicitly enabling keepalives in Loudmouth. Since at least loudmouth
+    1.4.1-0osso1, Loudmouth has used TCP keepalives whenever possible (every
+    30 seconds by default), and the call that was disabled on Maemo is now a
+    no-op in any case.
+  * Explicitly build-depend on libtool (autogen.sh needs it)
+
+ -- Simon McVittie <simon.mcvittie@collabora.co.uk>  Thu, 16 Oct 2008 12:18:17 +0100
+
+telepathy-gabble (0.7.10-1osso1) fremantle; urgency=low
+
+  * New upstream release 0.7.9:
+    - Implement Connection.Interface.Requests to spec 0.17.12 level
+    - Save contacts' aliases into the roster for massive bandwidth savings
+    - Improve valgrind test behaviour
+    - Merge a long-running OLPC branch (not Nokia-related, but involves
+      significant code changes)
+  * New upstream release 0.7.10:
+    - Implement Channel properties from spec 0.17.13
+    - Stop shipping MD5 and SHA-1 implementations in favour of using GChecksum
+    - Add TargetID to allowed properties for all channel classes
+    - Bring test-handles up to date with bugfixes in telepathy-glib
+    - Use unsigned int for booleans in bitfields (gboolean is signed)
+  * Requires telepathy-glib 0.7.17 and GLib 2.16
+
+ -- Simon McVittie <simon.mcvittie@collabora.co.uk>  Wed, 15 Oct 2008 14:53:46 +0100
+
+telepathy-gabble (0.7.8-1osso1) fremantle; urgency=low
+
+  * New upstream release 0.7.8
+  * Enhancements:
+    - Implement the Contacts interface for rapid bulk contact-handle inspection
+    - Implement telepathy-spec 0.17.9 (add the TargetID property to all
+      channels)
+    - Start to port channel factories away from TpChannelFactoryIface in
+      preparation for implementing the Requests API
+    - Use tp_debug_divert_messages() if selected using GABBLE_LOGFILE
+  * Fixes:
+    - Various fixes to the regression tests
+    - Correctly interpret 'dnd' presence as Busy, not Away
+    - Fix an assertion failure with GObject 2.17
+    - Make a few unconditional debug messages conditional
+  * Requires telepathy-glib 0.7.14
+  * telepathy-gabble has moved from darcs to git upstream; this source tree
+    corresponds to git commit b6760f in my 'maemo' branch
+
+ -- Simon McVittie <simon.mcvittie@collabora.co.uk>  Tue, 19 Aug 2008 21:16:00 +0100
+
+telepathy-gabble (0.7.7-1osso1) fremantle; urgency=low
+
+  * New upstream release 0.7.7
+  * Enhancements:
+    - Implements XEP-0115 v1.5 (hashed capabilities)
+    - Implements Channel and Group properties on all channels, for round-trip
+      reduction if used with a recent client
+    - Has infrastructure to implement more planned properties
+    - In multi-user chats, the connection self-handle is the owner of the
+      channel-specific self-handle, even if the server doesn't say so
+    - If text channels close with messages still pending, they reopen as
+      incoming text channels, solving a race condition that could lead to lost
+      messages
+    - Sets presence and nickname in MUCs to be the same as our global presence
+      and alias (fd.o #14954 and fd.o #14955, Fixes: NB#78358)
+    - Implements SimplePresence as well as Presence
+  * Fixes:
+    - Fixes a ref leak when using new-style TLS, and a memory leak when invited
+      to a MUC
+    - Fixes a possible assertion failure when a MUC invitation is invalid
+    - Fixes a possible access to freed memory (fd.o #16918)
+  * Sync packaging from Debian
+
+ -- Simon McVittie <simon.mcvittie@collabora.co.uk>  Thu, 31 Jul 2008 16:25:58 +0100
+
+telepathy-gabble (0.7.6-0osso1) unstable; urgency=low
+
+  * Update to upstream release 0.7.6
+    - Build-Depend on telepathy-glib >= 0.7.8
+    - Use telepathy-glib for the Hold API, rather than internal extensions
+    - Fix an inconsistency in audio/video capabilities (fd.o#15656)
+    - Fix generation of extensions docs (fd.o#15422)
+    - Fix a regression in 0.7.5 that put the caller of an incoming call in the
+      remote pending set instead of the members set (fd.o#15904)
+
+ -- Simon McVittie <simon.mcvittie@collabora.co.uk>  Wed, 14 May 2008 17:19:57 +0100
+
+telepathy-gabble (0.7.5-1osso1) unstable; urgency=low
+
+  * Update to upstream release 0.7.5
+    - MUC contacts no longer always appear to be offline (regression in 0.7.x,
+      fd.o #15095)
+    - tests now work with python-twisted 8.0 (fd.o #15311)
+    - ignore components with ID != 1 in native candidates, fixing VoIP with
+      Farsight 2 (which reports RTCP components as well as RTP)
+    - OSSO-specific change in 0.7.4 to not require htmldir has now been
+      integrated upstream
+
+ -- Simon McVittie <simon.mcvittie@collabora.co.uk>  Mon, 05 May 2008 13:01:04 +0100
+
+telepathy-gabble (0.7.4-1osso1) unstable; urgency=low
+
+  * Update to yesterday's upstream release 0.7.4
+    - aggregate MembersChanged signals when joining MUCs so we
+      get one big signal rather than lots of single-contact ones (fd.o #14467)
+    - fix assertion failure with strange roster items (fd.o #12791)
+    - update StreamedMedia API to telepathy-spec 0.17.3 (fd.o #14602,
+      fd.o #14806)
+    - fix assertion failure when passing an invalid handle to GetCapabilities
+      (fd.o #15198)
+    - when removing a media stream before the initiate is sent, send it if
+      possible
+    - disconnect the connection if we don't get a reply to the discovery
+      request for server features
+    - make sure teardown of the disco object doesn't crash if one of its
+      callbacks causes it to be destroyed
+  * Additional patches from upstream darcs:
+    - Don't assume that autoconf will define $(htmldir), that feature is new
+      in 2.59c
+  * Formerly OSSO-specific changes that have been integrated upstream:
+    - when blocking GTalk contacts, discard their presence
+    - avoid requiring automake 1.9
+  * Sync packaging with Debian pkg-telepathy bzr
+    - remove duplicated Build-Depends
+    - undo addition of HTML docs (we don't want them on an Internet tablet)
+
+ -- Simon McVittie <simon.mcvittie@collabora.co.uk>  Fri, 02 May 2008 17:53:33 +0100
+
+telepathy-gabble (0.7.3-1osso1) unstable; urgency=low
+
+  * The "don't mention the diffstat" release.
+  * Upgrade to upstream release 0.7.3, on the development branch.
+    - supports a draft version of the Hold API
+    - incorporates all changes from 0.6.1 and 0.6.2
+    - much better testing framework
+    - support hacks for N800-H263 and Instant Video removed (no longer needed)
+    - supports Tubes if compiled against libdbus >= 1.0.2
+    - telepathy-gabble binary moved to ${libexecdir}
+    - don't emit excessive AvatarRetrieved signals (fd.o #12465)
+    - turn off warnings about using GNU make (fd.o #14020)
+    - don't emit NewStreamHandler signals multiple times if Ready is called
+      multiple times on the SessionHandler (buggy versions of stream-engine
+      sometimes triggered this)
+  * Synchronize packaging with Debian pkg-telepathy bzr and reapply
+    the necessary OSSO-specific changes
+  * Requires telepathy-glib 0.7.0 and Loudmouth 1.3.2
+
+ -- Simon McVittie <simon.mcvittie@collabora.co.uk>  Fri, 11 Apr 2008 18:54:10 +0100
+
+telepathy-gabble (0.6.2-0osso2) unstable; urgency=low
+
+  * Be more strict in GetKnownAvatarTokens handlers
+  * When blocking GTalk contacts, discard their presence. Fixes: NB#80488
+  * Don't emit NewStreamHandler signals multiple times if Ready is called
+    multiple times on the SessionHandler.
+  * Don't set default port value in .manager files
+
+ -- Senko Rasic <senko.rasic@collabora.co.uk>  Thu, 20 Mar 2008 03:18:52 +0100
+
+telepathy-gabble (0.6.2-0osso1) unstable; urgency=low
+
+  * Support for SASL/SRV/TLS features in XMPP. Fixes: NB#79067
+
+ -- Senko Rasic <senko.rasic@collabora.co.uk>  Fri, 15 Feb 2008 00:04:37 +0100
+
+telepathy-gabble (0.6.0-0osso2) unstable; urgency=low
+
+  * GabbleVCardManager: destroy pending edits if GET request for
+    our VCard failed. Fixes: NB#72280
+
+ -- Senko Rasic <senko.rasic@collabora.co.uk>  Sat,  6 Oct 2007 18:44:38 +0200
+
+telepathy-gabble (0.6.0-0osso1) unstable; urgency=low
+
+  * version 0.6.0
+  * Remove false comment from configure.ac
+  * test-vcard-set-and-get: ignore the AvatarUpdated signal with empty
+    token caused by the initial vCard fetch
+
+ -- Senko Rasic <senko.rasic@collabora.co.uk>  Fri, 28 Sep 2007 12:05:18 +0300
+
+telepathy-gabble (0.5.14-0osso7) unstable; urgency=low
+
+  * Work around Google bug where offline chat messages are sent as notices.
+    Fixes: NB#71236.
+
+ -- Dafydd Harries <dafydd.harries@collabora.co.uk>  Thu, 27 Sep 2007 16:41:53 +0100
+
+telepathy-gabble (0.5.14-0osso6) unstable; urgency=low
+
+  * Properly include time.h in presence.c.
+
+ -- Senko Rasic <senko.rasic@collabora.co.uk>  Thu, 27 Sep 2007 13:50:32 +0300
+
+telepathy-gabble (0.5.14-0osso5) unstable; urgency=low
+
+  * version bupmed up to announce bugfixes. Fixes: NB#66384, NB#51156
+
+ -- Dmitry Rozhkov <dmitry.1.rozhkov@nokia.com>  Thu, 27 Sep 2007 12:06:36 +0300
+
+telepathy-gabble (0.5.14-0osso4) unstable; urgency=low
+
+  * Fix build failure in previous release.
+
+ -- Dafydd Harries <dafydd.harries@collabora.co.uk>  Wed, 26 Sep 2007 08:27:45 +0100
+
+telepathy-gabble (0.5.14-0osso3) unstable; urgency=low
+
+  * Don't create new text channels if we get a message with no body.
+    Fixes: NB#70821.
+  * Don't crash if GetKnownAvatarTokens request is made before we get our
+    avatar from the server. Fixes: NB#70951.
+  * Don't emit spurious CapabilitiesChanged signals. Fixes: NB#69671.
+
+ -- Dafydd Harries <dafydd.harries@collabora.co.uk>  Tue, 25 Sep 2007 17:36:58 +0100
+
+telepathy-gabble (0.5.14-0osso2) unstable; urgency=low
+
+  * Better prioritization of resources to use in voip calls. Fixes: NB#68053
+  * Removed invalid assertion on vcard set timeouts. Fixes: NB#70490
+  * Misc cleanups.
+
+ -- Senko Rasic <senko.rasic@collabora.co.uk>  Fri, 21 Sep 2007 16:50:49 +0200
+
+telepathy-gabble (0.5.14-0osso1) unstable; urgency=low
+
+  * New upstream version.
+   - Fixes setting alias/avatar.
+
+ -- Dafydd Harries <dafydd.harries@collabora.co.uk>  Fri, 07 Sep 2007 19:37:02 +0100
+
+telepathy-gabble (0.5.13-0osso1) unstable; urgency=low
+
+  * New upstream version.
+    - Implement new RequestKnownAvatarTokens method. Fixes: NB#62866.
+    - Don't fetch vCards for MUC contacts. Fixes: NB#66384.
+    - Implement better MUC subject changing API. Fixes: NB#51156.
+
+ -- Dafydd Harries <dafydd.harries@collabora.co.uk>  Thu, 30 Aug 2007 16:40:52 +0100
+
+telepathy-gabble (0.5.12-0osso7) unstable; urgency=low
+
+  * Merge workaround for Google roster weirdness. Fixes: NB#66314.
+
+ -- Dafydd Harries <dafydd.harries@collabora.co.uk>  Fri, 24 Aug 2007 15:39:27 +0100
+
+telepathy-gabble (0.5.12-0osso6) unstable; urgency=low
+
+  * Merge fix for CapabilitiesChanged signal not being emitted.
+    Fixes: NB#62560.
+
+ -- Dafydd Harries <dafydd.harries@collabora.co.uk>  Fri, 24 Aug 2007 15:18:36 +0100
+
+telepathy-gabble (0.5.12-0osso5) unstable; urgency=low
+
+  * Pull fix for wrong media stream type from head. Fixes: NB#65552.
+
+ -- Dafydd Harries <dafydd.harries@collabora.co.uk>  Mon, 13 Aug 2007 15:55:58 +0100
+
+telepathy-gabble (0.5.12-0osso4) unstable; urgency=low
+
+  * Apply patch from upstream darcs to fix invalid GArray access.
+
+ -- Dafydd Harries <dafydd.harries@collabora.co.uk>  Fri, 29 Jun 2007 11:44:55 +0100
+
+telepathy-gabble (0.5.12-0osso3) unstable; urgency=low
+
+  * Apply patch from upstream darcs to fix crash when calling SetStatus with
+     no optional arguments. (Fixes: NB#61234)
+
+ -- Robert McQueen <robot101@debian.org>  Wed, 20 Jun 2007 13:35:20 +0100
+
+telepathy-gabble (0.5.12-0osso2) unstable; urgency=low
+
+  * The real 0.5.12 upstream release.
+  * Use new simple presence mixin from telepathy-glib 0.5.13.
+  * Add "make check-twisted" Python test suite.
+  * Add support for HANDLE_OWNERS_NOT_AVAILABLE.
+  * Add support for new RequestAvatars method and AvatarReceived signal.
+  * Don't fail on avatars with missing <TYPE> nodes.
+  * Add "handle-name" to room listing GotRooms dict.
+  * Make the StopListing method on room list channels actually work.
+  * Store any known nickname on newly created roster entries.
+  * Tighten up handling of incoming <message> errors, otherwise we can think
+     the remote user has our nickname.
+  * Don't create new channels when we receive incoming <gone> typing
+     notifications.
+  * Add workaround for Google roster oddity which makes people bounce off
+     the subscribe remote pending list even if they approve us.
+  * Add hack for advertising H263-N800 as H263-1998 when talking to older
+     N800s.
+
+ -- Robert McQueen <robot101@debian.org>  Sun, 17 Jun 2007 18:03:20 +0100
+
+telepathy-gabble (0.5.12-0osso1) unstable; urgency=low
+
+  * Disable whitespace keepalives as new loudmouth does proper TCP keepalives
+
+ -- Jussi Laako <jussi.laako@nokia.com>  Thu, 24 May 2007 13:10:26 +0300
+
+telepathy-gabble (0.5.11-0osso1) unstable; urgency=low
+
+  * New upstream release incorporates resource parsing fixes.
+  * Fix up handling of Google Talk SSLTCP relay candidates.
+  * Fixes a few leaks.
+
+ -- Robert McQueen <robot101@debian.org>  Wed,  2 May 2007 18:23:58 +0100
+
+telepathy-gabble (0.5.10-0osso2) unstable; urgency=low
+
+  * Fix resource parsing, de-breaking MUC and VoIP. (From upstream Darcs)
+
+ -- Simon McVittie <smcv@ianadd.pseudorandom.co.uk>  Thu, 26 Apr 2007 13:05:38 +0100
+
+telepathy-gabble (0.5.10-0osso1) unstable; urgency=low
+
+  * Use external copy of telepathy-glib.
+
+ -- Simon McVittie <smcv@ianadd.pseudorandom.co.uk>  Fri, 20 Apr 2007 17:00:35 +0100
+
+telepathy-gabble (0.5.9-0osso1) unstable; urgency=low
+
+  * Update to spec 0.15.2.
+
+ -- Robert McQueen <robot101@debian.org>  Fri, 13 Apr 2007 15:40:33 +0100
+
+telepathy-gabble (0.5.8-0osso1) unstable; urgency=low
+
+  * Update to spec 0.15.1 for updated DTMF APIs.
+  * Fix some leaks/crashes.
+
+ -- Robert McQueen <robot101@debian.org>  Fri, 13 Apr 2007 04:35:05 +0100
+
+telepathy-gabble (0.5.7-0osso1) unstable; urgency=low
+
+  * New upstream release.
+  * Continued libtelepathy-glib development and documentation: API and ABI
+    freeze is imminent.
+    - Make properties mixin make more sense, and allow for >32 properties
+    - Make tp_handle_ref and friends return void: an invalid handle here is
+      an internal error, so should cause asserts, not error reporting
+    - In TpHeap allow there to be a destructor for the elements
+    - Improve semantics of start_connecting
+    - Add TP_BASE_CONNECTION_ERROR_IF_NOT_CONNECTED macro
+    - Implement RequestHandles and GetInterfaces in a generic way
+    - Start an API transition (which will be finished in 0.5.8) to make
+      TpGroupMixin more consistent with the other mixins
+    - Document everything in sight
+  * Don't crash if clients release handles they aren't holding, just
+    report an error to them
+  * Refactor MUC message function
+  * Refactor code that processes obsolete and current MUC invites
+  * When receiving private messages from MUC members, treat them as IMs
+  * Fix leaks in various places, including every avatar we request
+  * Fix a crash if a PHOTO contains no BINVAL
+  * Fix a crash when creating room-list channels. Fixes NB#53474.
+
+ -- Simon McVittie <simon.mcvittie@collabora.co.uk>  Wed, 11 Apr 2007 17:49:25 +0100
+
+telepathy-gabble (0.5.6-0osso1) unstable; urgency=low
+
+  * Fix common crash at sign-on.
+  * Fix assertion errors when calling Disconnect on new connection objects.
+  * Fix obscure assertion errors when RequestAvatar is called with invalid
+     handles.
+  * Fix vCard-based alias update signals to be emitted with the new value of
+     the alias, and only when the alias has actually changed.
+  * Fix memory/handle leaks in text channels.
+  * Refactor the handle API in telepathy-glib to deprecate floating-reference
+     tp_handle_request functions, add normalization functions to the handle
+     repository, and make the ABI safe against adding new handle types.
+  * Add gtk-doc for a lot of the telepathy-glib API.
+  * Add some simple unit testing in Python, starting with signing on twice and
+     sending a message between our two selves (thanks Mads Chr. Olesen).
+
+ -- Robert McQueen <robot101@debian.org>  Fri, 23 Mar 2007 02:03:51 +0000
+
+telepathy-gabble (0.5.5-0osso1) unstable; urgency=low
+
+  * Add support for sending/receiving chat state notifications on IMs and
+     MUCs.
+  * Reinstate the STUN and GTalk relay properties on media channels.
+  * Pipeline vCard requests locally so we can stop the server connection from
+     becoming congested.
+  * Fix a few bugs, leaks, move lifetime management code into telepathy-glib,
+     and split up gabble-connection.c for maintainability.
+  * Add support for compiling with coverage testing.
+
+ -- Robert McQueen <robot101@debian.org>  Mon,  5 Mar 2007 15:30:43 +0000
+
+telepathy-gabble (0.5.4-0osso1) unstable; urgency=low
+
+  * Update to spec 0.15.0.
+  * Implement ClearAvatar on the avatars interface.
+  * Implement GetLocalPendingMembersWithInfo on the group interface.
+  * Implement StopListing on the room list channel.
+  * Add 'nat-traversal' property to media channels.
+  * Leak fixes and use of slice allocator.
+  * Push more functionality into tp-glib's base classes of connection manager
+     and connection.
+  * Fix up the semantcs of channel request handling, avoiding odd re-entrant
+     behaviour.
+
+ -- Robert McQueen <robot101@debian.org>  Mon, 26 Feb 2007 23:11:47 +0000
+
+telepathy-gabble (0.5.3-0osso1) unstable; urgency=low
+
+  * Refactor common CM functionality into a telepathy-glib library,
+     installed static at the moment because the API is not final.
+  * Fix crashes in cases where contacts have empty vCards.
+
+ -- Robert McQueen <robot101@debian.org>  Wed,  7 Feb 2007 19:40:20 +0000
+
+telepathy-gabble (0.5.1-0osso1) unstable; urgency=low
+
+  * Cache vCards and coalesce requests so we don't send duplicate requests
+     (one for the alias, one for the avatar) to the server.
+  * Fix odd nickname/presence/caps interaction which was causing some crashes
+     and some failed calls.
+  * Fix leaks of references to the connection object, preventing
+     reconnections.
+  * Fix crashes on invalid arguments.
+  * Don't put a message parameter in presences if the contact didn't send a
+     message.
+  * Fix harmless handle-type param warnings.
+  * Some refactoring of code into proto-telepathy-glib lib/ dir.
+
+ -- Robert McQueen <robot101@debian.org>  Tue, 30 Jan 2007 14:18:52 +0000
+
+telepathy-gabble (0.5.0-0osso1) unstable; urgency=low
+
+  * Add preliminary support for avatars and server-stored groups.
+
+ -- Robert McQueen <robot101@debian.org>  Tue, 12 Dec 2006 14:14:32 +0000
+
+telepathy-gabble (0.4.9-0osso2) unstable; urgency=low
+
+  * Use tableteer.nokia.com namespace for IV registration.
+
+ -- Robert McQueen <robot101@debian.org>  Tue, 12 Dec 2006 13:44:12 +0000
+
+telepathy-gabble (0.4.9-0osso1) unstable; urgency=low
+
+  "There's something very important I forgot to tell you... Don't cross the
+   streams... It would be bad."
+
+  * Implement the ultimate avoidance for collision of stream names, no matter
+     how quickly you open and close the camera or how often opening the
+     device fails. Split them into two namespaces, one for the caller, and
+     one for the recipient. (Fixes: NB#45103)
+  * Batch up information about rooms and emit signals less often so that the
+     chat UI doesn't drown in signals and can do more UI updates at once.
+     (Fixes: NB#48389)
+
+ -- Robert McQueen <robot101@debian.org>  Tue,  5 Dec 2006 23:15:45 +0000
+
+telepathy-gabble (0.4.8-0osso1) unstable; urgency=low
+
+  * Explicitly create roster items before subscribing to people so that we
+     clear the hidden flag on google roster items when we want to add them to
+     our roster. (Fixes: NB#46283)
+  * Ignore rejected google roster items, it's not about whether they rejected
+     us, it's about whether we rejected them. (Fixes: NB#47831)
+  * Don't assume that google roster items we've mailed an invite to are not
+     valid JIDs, this is not the case when a Google Mail account is converted
+     to a Google Talk account. (Fixes: NB#48391)
+  * Return STATUS_CHANGE_REASON_NAME_IN_USE if we're disconnected due to
+     someone with the same resource as us signing in.
+  * Fix an assertion error when we encounter an error at the earliest
+     phase of connection (eg name resolution).
+  * Fix a few memory leaks.
+
+ -- Robert McQueen <robot101@debian.org>  Thu, 30 Nov 2006 16:41:34 +0000
+
+telepathy-gabble (0.4.7-0osso1) unstable; urgency=low
+
+  * Fix a bug so that we send our alias to the server even if our vCard is
+     empty, otherwise newly created IVC accounts get no alias.
+     (Fixes: NB#48223)
+
+ -- Robert McQueen <robot101@debian.org>  Thu, 23 Nov 2006 18:25:55 +0000
+
+telepathy-gabble (0.4.6-0osso1) unstable; urgency=low
+
+  * Fix obvious crash when requesting capabilities for offline contacts.
+     (Fixes: NB#48085)
+  * Remove streams from the UI and stream-engine's perspective when signalling
+     their removal to the peer, preventing a whole class of rapid stream
+     addition/removal inconsistencies. (Fixes: NB#48086)
+
+ -- Robert McQueen <robot101@debian.org>  Wed, 22 Nov 2006 01:35:02 +0000
+
+telepathy-gabble (0.4.5-0osso1) unstable; urgency=low
+
+  * New version.
+    - Fix crash when we attempt to call ourselves. Fixes: NB#28561.
+    - Fix various race conditions in Jingle call signalling. Fixes: NB#46262.
+
+ -- Dafydd Harries <dafydd.harries@collabora.co.uk>  Mon, 13 Nov 2006 00:14:30 +0000
+
+telepathy-gabble (0.4.4-0osso1) unstable; urgency=low
+
+  * New upstream version:
+     - add tie-breaking when content-add Jingle requests cross over,
+        preventing the call from failing on simultaneous camera pop-out
+        (Fixes: NB#45103)
+     - remove people from publish channel's local_pending when we reject
+        authorisation (Fixes: NB#42397, NB#46024, NB#46183)
+     - make connection callbacks robust against loudmouth calling us back even
+        after we're disconnected, and fix a self-handle reference assertion
+        (Fixes: NB#46513, NB#46532)
+     - fix crash when cancelling the room list channel (Fixes: NB#46692)
+     - add GetPresence method (Fixes: NB#46780)
+
+ -- Robert McQueen <robot101@debian.org>  Wed,  8 Nov 2006 18:22:48 +0200
+
+telepathy-gabble (0.4.3-0osso1.1) unstable; urgency=low
+
+  * Fixed: NB#46266
+
+ -- Robert McQueen <robot101@debian.org>  Thu,  2 Nov 2006 11:22:48 +0200
+
+telepathy-gabble (0.4.3-0osso1) unstable; urgency=low
+
+  * New upstream version:
+     - don't add streams to jingle calls until they're accepted, this is a XEP
+        violation (I should know, I wrote this bit!) (fixes: NB#43644)
+     - implement a client-side approximation of the filtering which the gtalk
+        server does if you don't turn on the google:roster extension, to
+        ignore the e-mail addresses that they includes in the roster for
+        some bizzare reason (fixes: NB#43102)
+     - fix crash when initiating calls to offline people
+        (fixes: NB#44384, NB#45210, NB#45875)
+     - fix bug in handle validation which was causing us to hit assertions
+        (fixes: NB#44768, NB#46021)
+     - fix mangled behaviour (changing self handle when we join the channel)
+        on MUC invites which was breaking invites to passworded rooms
+        (fixes: NB#45851, NB#34453)
+     - change message truncation to match spec (fixes: NB#40409)
+
+ -- Robert McQueen <robot101@debian.org>  Wed,  1 Nov 2006 01:29:49 +0000
+
+telepathy-gabble (0.4.2-0osso1) unstable; urgency=low
+
+  * New version.
+    - Fix race condition in capabilities handling. Fixes NB#43588.
+    - Include blocked contacts in roster. Fixes NB#42263.
+
+ -- Dafydd Harries <dafydd.harries@collabora.co.uk>  Wed, 25 Oct 2006 10:22:46 +0100
+
+telepathy-gabble (0.4.1-0osso1) unstable; urgency=low
+
+  * New version.
+    - Fix bug in handle validation. Fixes NB#43519, NB#43693, NB#43206.
+    - Allow destroying a disconnected connection by calling Disconnect() on it.
+      Fixes NB#42772.
+    - Fix bug in Google blocking code. Fixes NB#43870, NB#44220.
+
+ -- Dafydd Harries <dafydd.harries@collabora.co.uk>  Tue, 24 Oct 2006 01:00:40 +0100
+
+telepathy-gabble (0.4.0-0osso1) unstable; urgency=low
+
+  * New upstream version (first release from 0.4.x stable branch):
+     - fix unitialised variable wreaking havoc on capabilities discovery
+        (fixes: NB#43438, NB#43520, NB#43588, NB#43546)
+     - don't bother sending discovery requests to someone who claims to be
+        the same gabble as us, just use our capabilities
+     - also prime the capabilities cache with the google talk client's voice
+        capability, so they're callable the moment they're online
+     - add debugging to help with capabilities issues in the future
+     - fix MUC room joining on some buggy or unusual servers
+
+ -- Robert McQueen <robot101@debian.org>  Wed, 18 Oct 2006 19:13:47 +0100
+
+telepathy-gabble (0.3.14-0osso1) unstable; urgency=low
+
+  * New upstream version:
+     - avoid returning 'InvalidHandle' errors when establishing channels to
+        people who have no call capabilities, return 'NotAvailable' instead
+     - fix handling of all MUC messages as invited (fixes: NB#42636)
+     - fix crash when trying to join a MUC room (fixes: NB#41613)
+     - return the correct GError when a server has no MUC support
+        (fixes: NB#43390)
+     - don't emit the NewChannel signal if adding the requested handle to
+        a new streamed media channel fails (fixes: NB#43369)
+
+ -- Robert McQueen <robot101@debian.org>  Mon, 16 Oct 2006 16:07:47 +0100
+
+telepathy-gabble (0.3.13-0osso1) unstable; urgency=low
+
+  * New upstream version:
+     - fix crash calling people with no presence at all
+     - fix crash on connect if the user has no vCard
+
+ -- Robert McQueen <robot101@debian.org>  Fri, 13 Oct 2006 16:39:02 +0100
+
+telepathy-gabble (0.3.12-0osso1) unstable; urgency=low
+
+  * New upstream version:
+     - fixes to stream directions: automatically remove streams with no
+        senders, initialise incoming streams as receive + pending local send,
+        and go to bidirectional when the call is accepted
+     - don't create streamed media channels with people who can't make any
+        streams (fixes: NB#43298)
+     - ignore hidden google roster items (fixes: NB#43102)
+
+ -- Robert McQueen <robot101@debian.org>  Fri, 13 Oct 2006 15:29:27 +0100
+
+telepathy-gabble (0.3.11-0osso1) unstable; urgency=low
+
+  * New upstream version:
+     - signalling of media stream directions and changes
+     - support getting aliases from contacts' vCards, and set our self alias
+        in our own vCard
+     - advertising own and reporting of remote contacts' capabilities
+        (fixes: NB#41905)
+
+ -- Robert McQueen <robot101@debian.org>  Wed, 11 Oct 2006 22:40:34 +0100
+
+telepathy-gabble (0.3.10-0osso1) unstable; urgency=low
+
+  * New upstream version:
+     - fix broken outgoing gtalk calls (fixes: NB#42300)
+     - fix signing on with JIDs starting with a number (fixes: NB#42301)
+
+ -- Robert McQueen <robot101@debian.org>  Wed,  4 Oct 2006 20:30:06 +0100
+
+telepathy-gabble (0.3.9-0osso1) unstable; urgency=low
+
+  * New upstream version:
+    - accept old-style MUC invites (fixes: NB#42262)
+    - support presence from JIDs with NULL resources (fixes: NB#42264)
+
+ -- Dafydd Harries <dafydd.harries@collabora.co.uk>  Wed,  4 Oct 2006 14:01:08 +0100
+
+telepathy-gabble (0.3.8-0osso1) unstable; urgency=low
+
+  * New upstream version:
+     - supports media stream addition and removing
+
+ -- Robert McQueen <robot101@debian.org>  Mon,  2 Oct 2006 18:58:20 +0100
+
+telepathy-gabble (0.3.7-3) unstable; urgency=low
+
+  * removed forbidden words
+
+ -- Dmitry Rozhkov <ext-dmitry.rozhkov@nokia.com>  Fri, 29 Sep 2006 15:54:38 +0300
+
+telepathy-gabble (0.3.7-2) unstable; urgency=low
+
+  * s/******/nokia/ in IVC namespace
+
+ -- Dafydd Harries <daf@collabora.co.uk>  Fri, 29 Sep 2006 12:51:29 +0100
+
+telepathy-gabble (0.3.7-1) unstable; urgency=low
+
+  * New upstream version.
+    - Initial IVC registration implementation.
+    - set GError when set_param_from_value returns FALSE (Closes: NB#28923.)
+
+ -- Dafydd Harries <daf@collabora.co.uk>  Thu, 28 Sep 2006 19:25:35 +0100
+
+telepathy-gabble (0.3.6-0osso1) unstable; urgency=low
+
+  * New upstream release:
+     - update to spec 0.13.6
+     - fix a few silly bugs with Stream{Added,Removed,StateChanged} signal
+        emissions
+     - fix up MediaStreamHandler::Error and MediaSessionHandler::Error to emit
+        StreamError signals on the channel and behave as documented in spec
+        0.13.6
+     - fixes crashing on these Error calls (fixes: NB#41005)
+     - remove the Name field from the .manager file (see thread on telepathy
+        list)
+     - rename the "block" list to "deny", as documented in the spec
+
+ -- Robert McQueen <robot101@debian.org>  Thu, 21 Sep 2006 17:04:45 +0100
+
+telepathy-gabble (0.3.5-0osso2) unstable; urgency=low
+
+  * Make StreamStateChanged work again. Oops.
+
+ -- Robert McQueen <robot101@debian.org>  Thu, 14 Sep 2006 19:27:19 +0300
+
+telepathy-gabble (0.3.5-0osso1) unstable; urgency=low
+
+  * New upstream release:
+     - update to spec 0.13.5 and fix state machines for new signals
+     - add RemoveStreams functionality
+     - clarify signalling code somewhat
+
+ -- Robert McQueen <robot101@debian.org>  Wed, 13 Sep 2006 16:24:39 +0300
+
+telepathy-gabble (0.3.4-0osso1) unstable; urgency=low
+
+  * New upstream release:
+     - update to spec 0.13.4
+     - fix up StreamStateChanged/ListStreams/StreamAdded signals on media
+        channels
+
+ -- Robert McQueen <robot101@debian.org>  Sun, 10 Sep 2006 18:19:17 +0300
+
+telepathy-gabble (0.3.3-0osso1) unstable; urgency=low
+
+  * New upstream release:
+     - implement support for multiple streams & Jingle signalling, creating
+        streams after incoming requests, or for outgoing calls,
+        RequestStreams must be called
+     - do JEP-0115 entity capabilities and advertise Jingle capabilitity
+     - new memory-efficient handle implementation (praise & flames to Olli
+        Salli :D)
+     - includes MUC property fixes which were committed to S       
+
+ -- Robert McQueen <robot101@debian.org>  Wed,  6 Sep 2006 12:38:04 +0300
+
+telepathy-gabble (0.3.2-0osso1) unstable; urgency=low
+
+  * New upstream release:
+     - update to Telepathy spec version 0.13.3
+     - make media channels in a channel factory object
+     - fix up potential crashes in Google blocking code
+     - fix bug where registration doesn't fail if name is already in use
+        (fixes: NB#36561)
+     - add reasons and actors to MUC membership change signals
+        (fixes: NB#30692)
+     - fix bug where remote subscription requests are lost if they approve our
+        request after sending theirs (fixes: NB#38186)
+
+ -- Robert McQueen <robot101@debian.org>  Tue, 29 Aug 2006 20:17:42 +0100
+
+telepathy-gabble (0.3.1-0osso1) unstable; urgency=low
+
+  * New upstream release:
+     - changes to Telepathy spec version 0.13.2
+     - adds a "block" list channel using the Google roster extensions
+     - generate the .manager file at build time from the source's definitions
+        of the parameters and their defaults
+     - debugging can be disabled entirely with --disable-debug
+     - add a new GABBLE_DEBUG environment variable so that debug verbosity can
+        be changed at run-time, for everything use GABBLE_DEBUG=all
+     - replaced GABBLE_PERSIST with GABBLE_DEBUG=persist (also enabled when you
+        say 'all')
+
+ -- Robert McQueen <robot101@debian.org>  Wed,  9 Aug 2006 19:46:41 +0100
+
+telepathy-gabble (0.3.0-0osso1) unstable; urgency=low
+
+  * New upstream release:
+     - patch from Olli Salli to add InspectHandles support
+     - patch from Andre Magalhaes to fix leak of GroupMixin private struct
+     - fixes for various NULL pointer derefences (fixes: NB#33552, NB#33264)
+
+ -- Robert McQueen <robot101@debian.org>  Fri, 21 Jul 2006 16:31:05 +0100
+
+telepathy-gabble (0.1.33-0osso1) unstable; urgency=low
+
+  * New upstream release:
+     - fix mangling of MUC messages into IM channels (closes: #31408)
+     - avoid reading freeing memory in presence code (closes: #31493)
+     - add a 'known' list channel of all people on roster, regardless of
+        subscription state (for fixing various eds-sync bugs)
+     - fix aliasing request function to return errors correctly
+     - make the Properties interface on Connection visible
+     - get rid of "unknown property" warnings when making calls
+     - fix possible NULL-pointer dereferences when closing calls, listing
+        rooms or choosing a resource to call
+     - don't call to negative priority resources
+     - fix presence algorithm so that status is always used in preference to
+        priority
+
+ -- Robert McQueen <robot101@debian.org>  Thu,  1 Jun 2006 02:07:43 +0100
+
+telepathy-gabble (0.1.32-0osso1) unstable; urgency=low
+
+  * New upstream release:
+     - fix double frees when IM channels close, and using unallocated
+        memory to decide how much more memory to allocate
+        (closes: #31227, #30316)
+     - fix removal of the timeout source even after it has timed out (causes
+        crashes on connect when GABBLE_PERSIST was set)
+
+ -- Robert McQueen <robot101@debian.org>  Tue, 30 May 2006 17:18:08 +0100
+
+telepathy-gabble (0.1.31-0osso1) unstable; urgency=low
+
+  * New upstream release:
+     - fix over-enthusiastic replacement of set_static with take...
+       that actually *is* static (Closes #31049)
+     - fix disco#info response logic
+     - declare get_features as explicitly taking (void)
+     - use g_strdiff for readability
+     - make disco handler fall through in case of unknown node
+     - make GabbleRosterSubscription public, and change
+       _is_subscribed to _get_subscription
+     - rename gabble-disco.* to disco.*
+     - include version number in backtraces too
+     - use VERSION from config.h instead of defining a new GABBLE_VERSION
+     - add SEGV handler to attempt a backtrace print
+
+ -- Rob Taylor <rob.taylor@collabora.co.uk>  Mon, 29 May 2006 23:03:36 +0100
+
+telepathy-gabble (0.1.30-0osso1) unstable; urgency=low
+
+  * New upstream release:
+     - discover STUN servers from Google and make available for the VOIP
+       engine
+     - implement a GetHandleOwners method on the group interface, to find
+       the owner of MUC handles (closes #30103)
+     - pull aliases from our roster entries, and implement the aliasing
+       interface based off these and <nick> entries in incoming messages. vcard
+       nicknames to follow shortly (closes #25462)
+     - avoid crash where badly-truncated UTF-8 can make D-Bus disconnect
+       Gabble and we abort() (closes #29854)
+
+ -- Robert McQueen <robot101@debian.org>  Thu, 25 May 2006 20:21:07 +0100
+
+telepathy-gabble (0.1.29-0osso1) unstable; urgency=low
+
+  * New upstream release:
+   - Add new SSL errors (closes #26912).
+   - Add ignore ssl error option (closes #29859).
+   - Store error reason and emit state changed in disconnected callback
+     (closes #29859).
+   - Fix compilation of roster subscription function.
+   - Use the voice resource of the initator for all incoming calls
+     (closes #30217).
+   - Add static qualifiers to a few roster functions.
+   - Add gabble_roster_handle_is_subscribed function.
+   - Cache roster items to detect alias changes.
+
+ -- Rob Taylor <robtaylor@smtp.messagingengine.com>  Tue, 23 May 2006 22:09:14 +0100
+
+telepathy-gabble (0.1.28-0osso1) unstable; urgency=low
+
+  * New upstream release:
+    - disable capabilities and contactinfo interfaces because we want to change
+      them in future, and nothing uses them currently
+    - add lost message and send error signals to MUC and IM channels, and new
+      channel error cases
+    - correctly clear the suppress_next_handler flag to avoid losing incoming
+      channels that follows you making a request for a voip call
+    - store the peer JID in an IM channel, and update it so that we always send
+      to the last resource that sent to us (RFC 3921, section 4.1)
+    - add a 'priority' connection parameter to set the default priority
+    - fix voip calls (incorrect nesting of <candidates> inside <iq> instead of
+      <session>)
+    - correct logic errors in handling queued channel requests
+    - fix compile error (include time.h in text-mixin.c)
+
+ -- Robert McQueen <robot101@debian.org>  Tue, 23 May 2006 15:14:39 +0100
+
+telepathy-gabble (0.1.27-0osso1) unstable; urgency=low
+
+  * New upstream release:
+     - reliably mark people as offline when they sign out
+     - fix .manager file which caused everything not to work
+     - remove duplicated text code so that bugs #29854 and #29856 can be fixed
+
+ -- Robert McQueen <robot101@debian.org>  Wed, 17 May 2006 15:32:59 +0100
+
+telepathy-gabble (0.1.26-0osso1) unstable; urgency=low
+
+  * New upstream release:
+     - fixes bug where Gabble would crash if "connect-server" parameter was
+       not specified
+
+ -- Dafydd Harries <daf@debian.org>  Tue, 16 May 2006 17:27:03 +0100
+
+telepathy-gabble (0.1.25-0osso1) unstable; urgency=low
+
+  * New upstream release:
+     - fixes to a variety of interesting disco-related crashes
+     - room listing now only sends up to 10 requests at a time, fixing #28148
+     - roster channels now only appear after they have been populated with the
+        roster from the server (fixes #29850)
+     - channel requests can now be implemented asynchronously (we can fix
+        #29430 in the next release)
+
+ -- Robert McQueen <robot101@debian.org>  Tue, 16 May 2006 16:12:05 +0100
+
+telepathy-gabble (0.1.24-0osso1) unstable; urgency=low
+
+  * New upstream release:
+    - make the presence cache ignore presence from ourselves on other
+      resources (for the moment)
+    - construct presence cache with new conn argument
+    - merge presence_cache_parse_message functionality into tweaked presence
+      cache
+    - refactor PresenceCache a bit so that it takes a construct-time property
+      of the GabbleConnection
+    - update .manager file to new format
+    - resolve conflicting changes to feature list
+    - also emit presence updates for ourselves
+    - make the MUC presence_cb hand presence updates to the presence cache to
+      parse, and filter out the MUC nodes from all lower priority callbacks
+    - split the presence callback into a function to parse the node, and a
+      function to lookup the handle
+    - tweak JID parsing function so that you don't have to provide a server
+      variable
+    - rehash the presence updating algorithm again so that we store and emit
+      the messages people can send when they sign off
+
+ -- Dafydd Harries <daf@debian.org>  Thu, 11 May 2006 02:25:49 +0100
+
+telepathy-gabble (0.1.23-0osso1) unstable; urgency=low
+
+  * New upstream release:
+    - fix crashing when trying to call to a contact with no presence (#29256)
+    - tweak order of presences to allow sensible numerical comparisons
+    - tweak presence difference checking to improve readability
+    - store caps in the presence struct
+    - plug a leak of the resource structure when buddies sign off
+    - tweak the updating algorithm to prefer higher-priority resources' status
+       messages
+
+ -- Robert McQueen <robot101@debian.org>  Wed, 10 May 2006 18:45:06 +0100
+
+telepathy-gabble (0.1.22-0osso1) unstable; urgency=low
+
+  * New upstream release
+     - fix emitting of presence signals for offline/multiple resource contacts
+     - identify ourselves as gabble in our outgoing caps nodes
+     - make our jingle and gtalk features service-discoverable
+     - include priority on presence stanzas we send, and allow it to be set as
+        a presence parameter
+     - make media sessions terminate when they dispose, fixing odd call
+        termination bugs
+     - plug a leak of the room list channel when disconnecting
+     - reduce presence-related debug output
+     - reply to unknown IQs with proper XMPP errors
+     - make roster channels send messages on AddMembers/RemoveMembers calls
+     - fall back to non-proxy connection if the proxy fails
+
+ -- Robert McQueen <robot101@debian.org>  Wed, 10 May 2006 13:33:30 +0100
+
+telepathy-gabble (0.1.21-0osso1) unstable; urgency=low
+
+  * New upstream release.
+
+    Changelog:
+      - bump version to 0.1.21
+      - disable useless presence debug messages
+      - fix disco leak
+      - make gabble_presence_update smarter for when a resource goes offline
+      - refactor: gabble_presence_update
+      - make session terminate when it is disposed.
+      - GabbleConnection: fall back in case of proxy failure.
+      - avoid double free of media channels when closing the connection
+      - add a g_intset_clear function, inspired by Ross Burton
+      - raise D-Bus requirement to 0.61
+      - Add a "low-bandwidth" option to GabbleConnectionManager and GabbleConnection, and make GabbleMucChannel poll for room property changes every 5th minute in low bandwidth mode and every minute in high bandwidth mode. Don't change and emit changed for room properties being changed to the same value as they previously were. Free room properties in finalize (doh). Add missing "stun-*" property badgering in GabbleConnectionManager.
+      - GabbleConnection: destroy the handle repo in finalize, after having cleared the client handle sets.
+      - GabbleMucChannel: Close channel when joining fails, and specify the XMPP error description in the member removal message. Spec changes needed to fix this properly later on.
+      - GabbleMucChannel: port to using the new GabbleXmppError API.
+      - gabble-error: add gabble_error_description
+      - GabbleRegister: port to using the new GabbleXmppError API.
+      - GabbleDisco: port to using the new GabbleXmppError API.
+      - gabble-error: Add gabble_xmpp_error_to_g_error and descriptions for all errors.
+      - gabble-error: add copyright headers
+      - make GabblePresenceCache signals emit numerically
+      - store priority values inside GabblePresence->Resource, and allow them to be set from SetStatus and parsed from incoming <presence>
+      - remove debugging cruft
+      - replace tabs with spaces
+      - remove unnecessary debug message
+      - remove ContactPresence cruft
+      - gabble-error: A couple of style fixes.
+      - Add a generic XMPP error handling API.
+      - GabbleMucChannel: Improve room properties server compatibility.
+      - GabbleMucChannel.SetProperties: Bugfix for special-cased "anonymous" room property config form handling.
+      - GabbleMucChannel: Implement read/write support for "description" room property.
+      - GabbleGroupMixin and GabbleMucChannel: less annoying debug output.
+      - GabbleMucChannel.SetProperties: When changing subject, don't return until it has either been changed or changing it failed. Update properties on success, refresh properties on failure. Add support for another variant of the "anonymous" room property in room config (sigh). Code cleanups.
+      - GabbleConnection: Split message_cb into message_im_cb and message_muc_cb. Make sure messages without a body get through to GabbleMucChannel. Add a ignore_nick parameter to gabble_handle_for_room_exists for convenience.
+      - respond to incoming disco#info requests
+      - fix gabble_handle_is_valid invocation
+      - make presence callback static
+      - make GabbleConnection use GabblePresenceCache
+      - node_is_for_muc -> _get_muc_node
+      - remove contact presence callback from gabble-connection.c
+      - remove cruft from presence cache
+      - make presence cache handle Loudmouth presence stanzas
+      - make gabble_presence_update free offline resources
+      - free resources when presence object is finalised
+      - move jabber presence constants to gabble-presence-cache.h
+      - unref presence cache at connection dispose time
+      - fix string parameters memory leak
+      - refactor gabble_presence_update
+      - give GabbleConnection a presence cache
+      - remove _presence_get_supports_voice
+      - replace _pick_voice_resource with more general _pick_resource_by_caps
+      - rename presence caps and distinguish google/jingle voice caps
+      - rename GabblePresenceCapability -> GabblePresenceCapabilities
+      - move GabblePresenceCache typedef to gabble-types.h
+      - resolve Makefile.am conflicts
+      - add gabble_presence_pick_voice_resource
+      - remove whitespace
+      - remove crufty presence declarations
+      - add gabble_presence_set_capabilities
+      - make resource caps more typeful
+      - add GabblePresence, GabblePresenceCache
+      - fix calls to lm_message_node_to_string which don't free the resulting string
+
+    Bugs fixed:
+      #25158 Call termination doesn't happen immediately on the PC Gt side when device user presence state changed to offline during an active call
+      #26295 SetProperties returns "only 1 out of 6 properties substituted" error
+      #27766 room settings are not updated in current instance of MUC channel (although they are updated in server)
+      #28076 Gabble doesn't support room description in properties
+      #27560 gabble reports 'writable' flag for room property 'subject', but get 'forbidden' error when setting it.
+      #27747 Can not join password protected rooms
+      #27818 Room creation without rights
+      #28078 Gabble doesn't emit signal for changing room name
+
+ -- Ole Andre Vadla Ravnaas <oleavr@fetterzole.lan>  Fri,  5 May 2006 19:16:38 +0200
+
+telepathy-gabble (0.1.20-0osso1) unstable; urgency=low
+
+  * New upstream
+
+ -- Philippe Kalaf <philippe.kalaf@collabora.co.uk>  Fri, 28 Apr 2006 16:52:20 -0400
+
+telepathy-gabble (0.1.19-0osso1) unstable; urgency=low
+
+  * New upstream release.
+
+    Changelog:
+      - bump version to 0.1.19
+      - Expose GabbleConnection's stun-* properties to the connection manager.
+        Update gabble.manager to reflect the latest properties.
+
+ -- Ole Andre Vadla Ravnaas <ole.andre.ravnaas@collabora.co.uk>  Tue, 25 Apr 2006 20:58:50 +0200
+
+telepathy-gabble (0.1.18-0osso1) unstable; urgency=low
+
+  * New upstream release.
+
+    Changelog:
+      - bump version to 0.1.18
+      - GabbleConnection: disconnect with NAME_IN_USE when registration fails due to username collision.
+      - Implement support for in-band account registration. Attempts to register a new account when register=true is passed to Connect().
+      - split connection presence_cb into three functions, for muc stuff, roster stuff, and actual presence
+      - make MUC presence callback use the message rather than ContactPresence
+      - GabbleConnectionManager: expose "fallback-conference-server" property.
+
+ -- Ole Andre Vadla Ravnaas <ole.andre.ravnaas@collabora.co.uk>  Tue, 25 Apr 2006 19:31:00 +0200
+
+telepathy-gabble (0.1.17-0osso1) unstable; urgency=low
+
+  * New upstream release.
+
+    Changelog:
+      - bump version to 0.1.17
+      - room_name_to_canonical: remove redundant initialization.
+      - GabbleConnection: don't sanity-check room jids as they can be non-qualified.
+      - GabbleConnection: free list of conference servers in finalize.
+      - Append new conference servers to the linked list instead of prepending, to avoid the added complexity of figuring out when we're really done querying for them so that the list can be reversed. Add a default server when doing RequestHandle with a non-qualified room identifier.
+      - grok legacy jabber <error code=xxx> attributes
+      - make presence errors less shouty
+      - replace painful multiple string concatenations with a GString
+      - fix handle repository to not leak all private handle structures, and know how to free up list handles
+      - replace suspicious-looking static buffer with a GString
+      - make the roster channel use the group mixin to cut down a bunch of annoying code duplication
+      - skip existing members when adding in the group mixin
+      - add checking of all ADD/REMOVE/RESCIND flags for all add & remove operations on the group mixin
+      - correct unreffing the wrong handle type when closing the roster channel
+      - free up the group mixin when closing MUC channels
+      - catch a few places were room properties weren't replaced with the new properties interface
+      - Add variant muc_unsecure (JEP-0045 says muc_unsecured) which some servers seem to use, in both places where we parse room disco responses. Fix mis-spelling of muc_persistEnt in room listing. We've got three places where we disco MUCs now. Sigh.
+      - add https-proxy-server and port parameters to the .manager file
+      - give up on ***ing passwords and just print <hidden>, in *both* places where it gets printed :)
+
+ -- Ole Andre Vadla Ravnaas <ole.andre.ravnaas@collabora.co.uk>  Fri, 21 Apr 2006 18:04:05 +0200
+
+telepathy-gabble (0.1.16-0osso1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Robert McQueen <robot101@debian.org>  Tue, 18 Apr 2006 18:09:32 +0100
+
+telepathy-gabble (0.1.15-0osso2) unstable; urgency=low
+
+  * Add patch from Leonid Moiseichuk to add a thumb build option. Closes
+     bugzilla #26629.
+
+ -- Robert McQueen <robot101@debian.org>  Tue, 18 Apr 2006 14:49:42 +0100
+
+telepathy-gabble (0.1.15-0osso1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Robert McQueen <robot101@debian.org>  Wed, 12 Apr 2006 14:55:24 +0300
+
+telepathy-gabble (0.1.14-0osso1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Rob Taylor <robtaylor@smtp.messagingengine.com>  Tue, 11 Apr 2006 13:22:58 +0300
+
+telepathy-gabble (0.1.13-0osso1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Ole Andre Vadla Ravnås <oleavr@localhost.localdomain>  Mon, 10 Apr 2006 19:18:24 +0300
+
+telepathy-gabble (0.1.12-0osso1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Rob Taylor <robtaylor@smtp.messagingengine.com>  Mon, 10 Apr 2006 11:21:53 +0300
+
+telepathy-gabble (0.1.11-0osso1) unstable; urgency=low
+
+  * New release.
+
+ -- Ole Andre Vadla Ravnås <oleavr@localhost.localdomain>  Sun,  9 Apr 2006 20:43:31 +0300
+
+telepathy-gabble (0.1.10-0osso1) unstable; urgency=low
+
+  * New release (previous one had no changelog entry apparently).
+
+ -- Robert McQueen <robot101@debian.org>  Fri,  7 Apr 2006 18:37:04 +0300
+
+telepathy-gabble (0.1.8-0osso1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Rob Taylor <robtaylor@smtp.messagingengine.com>  Thu,  6 Apr 2006 11:52:46 +0300
+
+telepathy-gabble (0.1.7-0osso1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Rob Taylor <robtaylor@smtp.messagingengine.com>  Thu,  6 Apr 2006 10:55:36 +0300
+
+telepathy-gabble (0.1.6-0osso1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Ole Andre Vadla Ravnås <oleavr@localhost.localdomain>  Tue,  4 Apr 2006 19:00:31 +0200
+
+telepathy-gabble (0.1.5-0osso1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Rob Taylor <robtaylor@smtp.messagingengine.com>  Tue,  4 Apr 2006 17:05:18 +0300
+
+telepathy-gabble (0.1.4-0osso1) unstable; urgency=low
+
+  * New version of telepathy-gabble with MUC fixes.
+  * Remove libcst-dev from build depends. 
+
+ -- Ole Andre Vadla Ravnås <oleavr@localhost.localdomain>  Tue,  4 Apr 2006 14:13:20 +0200
+
+telepathy-gabble (0.1.3-0osso1) unstable; urgency=low
+
+  * New version of telepathy-gabble.
+
+ -- Ole Andre Vadla Ravnås <oleavr@localhost.localdomain>  Tue,  4 Apr 2006 10:48:50 +0200
+
+telepathy-gabble (0.1.2-0osso1) unstable; urgency=low
+
+  * New version of telepathy-gabble.
+  * Add libcst-dev to build depends
+
+ -- Rob Taylor <robtaylor@smtp.messagingengine.com>  Thu, 23 Mar 2006 02:20:41 +0000
+
+telepathy-gabble (0.1.1-0osso1) unstable; urgency=low
+
+  * New version of telepathy-gabble.
+
+ -- Rob Taylor <robtaylor@smtp.messagingengine.com>  Fri, 17 Mar 2006 18:18:41 +0000
+
+telepathy-gabble (0.0.1-4) unstable; urgency=low
+
+  * loudmouth-dev added to build-dependencies
+
+ -- Dmitry Rozhkov <ext-dmitry.rozhkov@nokia.com>  Fri, 17 Feb 2006 13:42:04 +0200
+
+telepathy-gabble (0.0.1-3) unstable; urgency=low
+
+  * Fix presence names to match up with values. Hopefully for the last time.
+
+  * merge gabble_presence_values and status_infos into gabble_statuses 
+    so the names are alongside the values... this may help robtaylor and I 
+    stop changing the order of one but not the other... :) 
+
+ -- Dmitry Rozhkov <ext-dmitry.rozhkov@nokia.com>  Thu, 16 Feb 2006 10:01:42 +0200
+
+telepathy-gabble (0.0.1-2) unstable; urgency=low
+
+  * errors ignored
+
+ -- Dmitry Rozhkov <ext-dmitry.rozhkov@nokia.com>  Wed, 15 Feb 2006 16:14:52 +0200
+
+telepathy-gabble (0.0.1-1) unstable; urgency=low
+
+  * initial release
+
+ -- Dmitry Rozhkov <ext-dmitry.rozhkov@nokia.com>  Fri, 27 Jan 2006 11:55:03 +0200
+

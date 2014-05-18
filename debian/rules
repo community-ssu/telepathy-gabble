@@ -1,0 +1,21 @@
+#!/usr/bin/make -f
+DEB_AUTO_CLEANUP_RCS            := yes
+
+include /usr/share/cdbs/1/class/autotools.mk
+include /usr/share/cdbs/1/rules/debhelper.mk
+include /usr/share/cdbs/1/rules/simple-patchsys.mk
+
+# List any files which are not installed
+include /usr/share/cdbs/1/rules/utils.mk
+common-binary-post-install-arch:: list-missing
+
+# cdbs defaults to one subdirectory per source package, which is overkill for us
+DEB_CONFIGURE_LIBEXECDIR := "\$${prefix}/lib/telepathy"
+DEB_CONFIGURE_EXTRA_FLAGS := --disable-assumed-ft-cap
+
+# this has a tight dependency, so we can symlink the doc directories together
+DEB_INSTALL_DOCS_telepathy-gabble-dbg := --no-act
+DEB_INSTALL_CHANGELOGS_telepathy-gabble-dbg := --no-act
+
+# OSSO-specific changes
+include debian/osso-specific-rules.mk

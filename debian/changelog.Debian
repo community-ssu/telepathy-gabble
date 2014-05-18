@@ -1,0 +1,333 @@
+telepathy-gabble (0.7.15-1) experimental; urgency=low
+
+  * New upstream version
+
+ -- Simon McVittie <smcv@debian.org>  Thu, 06 Nov 2008 09:57:24 +0000
+
+telepathy-gabble (0.7.14-1) experimental; urgency=low
+
+  * New upstream version
+    - require telepathy-glib 0.7.18
+
+ -- Simon McVittie <smcv@debian.org>  Tue, 04 Nov 2008 11:38:16 +0000
+
+telepathy-gabble (0.7.12-1) experimental; urgency=low
+
+  * New upstream release
+
+ -- Simon McVittie <smcv@debian.org>  Thu, 23 Oct 2008 16:02:28 +0100
+
+telepathy-gabble (0.7.11-1) experimental; urgency=low
+
+  * New upstream release
+
+ -- Simon McVittie <smcv@debian.org>  Wed, 22 Oct 2008 16:04:16 +0100
+
+telepathy-gabble (0.7.10-1) experimental; urgency=low
+
+  [ Simon McVittie ]
+  * New upstream version
+    - require telepathy-glib 0.7.17
+  * README.source: talk about the debian-patches branch
+
+  [ Laurent Bigonville ]
+  * Use my debian.org address in Uploaders
+  * Fix Vcs-Git URL
+
+ -- Simon McVittie <smcv@debian.org>  Wed, 15 Oct 2008 14:01:58 +0100
+
+telepathy-gabble (0.7.9-1) experimental; urgency=low
+
+  * New experimental upstream version. This one would be in experimental even
+    if we weren't in freeze for the lenny release.
+    - bump build dependencies to GLib 2.16 and telepathy-glib 0.7.16
+  * Move packaging to git and note this fact in debian/control.
+  * Bump the Standards-Version to 3.8.0 (add a README.source).
+
+ -- Simon McVittie <smcv@debian.org>  Mon, 29 Sep 2008 18:42:50 +0100
+
+telepathy-gabble (0.7.8-1) experimental; urgency=low
+
+  * New upstream version.
+  * debian/patches/01fixmarshaller.patch: removed, no longer needed.
+
+ -- Simon McVittie <smcv@debian.org>  Tue, 19 Aug 2008 20:35:05 +0100
+
+telepathy-gabble (0.7.7-2) experimental; urgency=low
+
+  * debian/patches/01fixmarshaller.patch: Fix assertion failure when using
+    GLib 2.17's pedantic signal marshallers (patch from upstream darcs,
+    via Ubuntu; fd.o #16963).
+
+ -- Simon McVittie <smcv@debian.org>  Wed, 06 Aug 2008 12:06:58 +0100
+
+telepathy-gabble (0.7.7-1) experimental; urgency=low
+
+  * New upstream release
+    - debian/control: build-depend on telepathy-glib >= 0.7.13
+      and update other dependencies to match configure.ac
+  * Targeting experimental due to the lenny freeze
+  * Wrap long Uploaders, Build-Depends and sort them alphabetically
+  * Make the build-dependency on libdbus-1-dev explicit
+  * Update copyright year in debian/copyright
+
+ -- Simon McVittie <smcv@debian.org>  Thu, 31 Jul 2008 14:45:34 +0100
+
+telepathy-gabble (0.7.6-1) unstable; urgency=low
+
+  * New upstream release
+  * debian/control: Up telepathy-glib build-depend to 0.7.8
+  * debian/patches/00-no-call-state.diff:
+    + Removed. Not relevant anymore
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Fri, 16 May 2008 12:41:16 +0200
+
+telepathy-gabble (0.7.5-2) unstable; urgency=low
+
+  * patches/00-no-call-state.diff: Added, from upstream darcs.
+    Avoid referencing the CallState interface, so we don't have to depend on
+    telepathy-glib >= 0.7.6
+
+ -- Simon McVittie <smcv@debian.org>  Mon, 12 May 2008 09:30:43 +0100
+
+telepathy-gabble (0.7.5-1) unstable; urgency=low
+
+  * New upstream version
+  * Ship the HTML protocol documentation installed by versions >= 0.7.4
+
+ -- Simon McVittie <smcv@debian.org>  Mon, 05 May 2008 12:53:58 +0100
+
+telepathy-gabble (0.7.4-1) unstable; urgency=low
+
+  * New upstream version
+  * debian/patches/00_retry_media_session_initiation_on_stream_removal.patch:
+    removed, applied upstream
+  * Use my Debian email address in Uploaders
+
+ -- Simon McVittie <smcv@debian.org>  Thu, 01 May 2008 19:18:59 +0100
+
+telepathy-gabble (0.7.3-2) unstable; urgency=low
+
+  [ Simon McVittie ]
+  * Instead of shipping documentation in the -dbg package, ship a symlink
+    to the main package's documentation
+  * Update Build-Depends for the 0.7.3 version, which needs
+    telepathy-glib (>= 0.7.0) (in practice, this is easily satisfied by the
+    versions in both lenny and sid, so shouldn't be a problem)
+
+  [ Sjoerd Simons ]
+  * debian/patches/00_retry_media_session_initiation_on_stream_removal.patch
+    - Added. When a media stream is removed before a session initiation is
+    send recheck if an initiation should be send (from upstream darcs)
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Sat, 12 Apr 2008 17:54:28 +0200
+
+telepathy-gabble (0.7.3-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Simon McVittie <smcv@ianadd.pseudorandom.co.uk>  Fri, 11 Apr 2008 15:36:28 +0100
+
+telepathy-gabble (0.7.2-1) unstable; urgency=low
+
+  * New upstream release (0.7.2)
+
+ -- Laurent Bigonville <bigon@bigon.be>  Thu, 17 Jan 2008 23:11:41 +0100
+
+telepathy-gabble (0.7.1-1) unstable; urgency=low
+
+  [ Simon McVittie ]
+  * New upstream release
+    - Installs to libexecdir, so set libexecdir to /usr/lib/telepathy/ in
+      debian/rules (we're standardizing on this directory for all
+      Telepathy CMs in Debian)
+    - Has a man page (which was briefly in the Debian packaging, but has now
+      gone upstream)
+  * Upgrade telepathy-glib dependency to 0.6.1 to get predictable behaviour
+    of debug vs persist (note to backporters: 0.5.14 should be sufficient to
+    build this version if you don't want 0.6.1)
+  * Add XS-Dm-Upload-Allowed: yes so I can upload it
+
+  [ Laurent Bigonville ]
+  * Use new Homepage field instead of old pseudo-field
+  * Use now official Vcs-* field
+  * Bump libloudmouth-dev build-dep (>= 1.3.2), only needed to enable some
+    new features
+  * Bump Standards-Version to 3.7.3
+
+ -- Laurent Bigonville <bigon@bigon.be>  Tue, 11 Dec 2007 20:48:36 +0100
+
+telepathy-gabble (0.6.0-1) unstable; urgency=low
+
+  * New upstream release
+  * Remove Provides: telepathy-connection-manager from the -dbg package
+
+ -- Laurent Bigonville <bigon@bigon.be>  Fri, 28 Sep 2007 20:23:26 +0200
+
+telepathy-gabble (0.5.14-1) unstable; urgency=low
+
+  [ Laurent Bigonville ]
+  * Add XS-Vcs-Bzr field
+
+  [ Sjoerd Simons ]
+  * New upstream release
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Thu, 06 Sep 2007 22:27:46 +0200
+
+telepathy-gabble (0.5.13-1) unstable; urgency=low
+
+  [ Laurent Bigonville ]
+  * Add myself as an Uploaders
+  * Use binary:Version instead of Source-Version to be binNMU safe
+
+  [ Sjoerd Simons ]
+  * New upstream release
+  * debian/control: Bump libtelepathy-glib-dev build-dep to >= 0.5.14
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Fri, 31 Aug 2007 09:44:51 +0200
+
+telepathy-gabble (0.5.12-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Mon, 09 Jul 2007 22:38:50 +0200
+
+telepathy-gabble (0.5.11-1) unstable; urgency=low
+
+  [ Sjoerd Simons ]
+  * Set the priority of -dbg to extra
+
+  [ Simon McVittie ]
+  * New upstream release
+  * Build-Depend on telepathy-glib 0.5.10 (now separate)
+  * Set -dbg dependencies correctly
+
+ -- Simon McVittie <smcv@ianadd.pseudorandom.co.uk>  Thu, 03 May 2007 17:07:52 +0100
+
+telepathy-gabble (0.5.8-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Fri, 13 Apr 2007 10:03:33 +0200
+
+telepathy-gabble (0.5.7-1) unstable; urgency=low
+
+  * New upstream release
+  * Upload to unstable now that the required version of dbus-glib is in
+    unstable
+  * debian/copyright: Update authors and include licenses/copyright of the
+    included libmd5-rfc and sha1 implementations.
+  * debian/telepathy-gabble.install: Make more strict to prevent the
+    installation of telepathy-glib
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Tue, 10 Apr 2007 17:15:58 +0200
+
+telepathy-gabble (0.5.6-1) experimental; urgency=low
+
+  * New upstream release
+  * Correctly upload to experimental (needs new dbus-glib) - 0.5.5-1 in
+    unstable was a mistake
+  * Branch packaging on Alioth to avoid future confusion
+
+ -- Simon McVittie <smcv@ianadd.pseudorandom.co.uk>  Mon, 26 Mar 2007 17:08:06 +0100
+
+telepathy-gabble (0.5.5-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Thu,  8 Mar 2007 18:54:41 +0100
+
+telepathy-gabble (0.5.4-1) unstable; urgency=low
+
+  * New upstream release
+  * Add xsltproc to build-depends
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Fri,  2 Mar 2007 11:40:03 +0100
+
+telepathy-gabble (0.5.3-1) experimental; urgency=low
+
+  * New upstream release
+
+ -- Riccardo Setti <giskard@debian.org>  Thu,  8 Feb 2007 21:18:20 +0100
+
+telepathy-gabble (0.5.1-1) unstable; urgency=low
+
+  * New upstream release.
+  * Removed:
+    - 00_only_set_message_if_present.patch applied upstream
+    - 01_first_update_cache_then_use_it.patch applied upstream
+ 
+ -- Riccardo Setti <giskard@debian.org>  Tue, 30 Jan 2007 10:44:01 +0100
+
+telepathy-gabble (0.5.0-2) unstable; urgency=low
+
+  [ Riccardo Setti ]
+  * Added telepathy-gabble-dbg package.
+
+  [ Sjoerd Simons ]
+  * debian/patches/00_only_set_message_if_present.patch
+    - Don't add an optional message property in PresenceUpdate if the contact
+    didn't have a status message (from upstream darcs)
+  * debian/patches/01_first_update_cache_then_use_it.patch
+    - First update the cache and then proccess the information (from upstream
+    darcs)
+
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Thu, 25 Jan 2007 15:09:43 +0100
+
+telepathy-gabble (0.5.0-1) unstable; urgency=low
+
+  [ Dafydd Harries ]
+  * Bump build-dependency on Loudmouth to >= 1.1.1.
+  * Bump libglib-dbus-dev dependency to >= 0.71.
+  * List authors in copyright file.
+  * Add Riccardo Setti as uploader.
+  * Add watch file.
+  * Bump standards version to 3.7.2.
+
+  [ Simon McVittie ]
+  * New upstream release.
+  * Merge Ubuntu packaging with Daf's Debian packaging for 0.4.2.
+  * Use plain debhelper (as in Daf's Debian packaging), not CDBS (as in Daniel
+    Holbach's Ubuntu packaging).
+  * Set Daf as maintainer with myself, Daniel Holbach and Riccardo Setti as
+    uploaders.
+
+  [ Sjoerd Simons ]
+  * New upstream release
+  * Add myself to uploaders
+  * Revert the change to debhelper 
+  * Merge in the latest ubuntu changes
+  * Move the ubuntu changelog to ubuntu.change, so there is some record for it
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Thu, 14 Dec 2006 15:11:31 +0000
+
+telepathy-gabble (0.4.2-1) unstable; urgency=low
+
+  * New upstream release.
+  * Bump build-dependency on Loudmouth to >= 1.1.1.
+  * Bump libglib-dbus-dev dependency to >= 0.71.
+  * List authors in copyright file.
+  * Add Riccardo Setti as uploader.
+
+ -- Dafydd Harries <daf@debian.org>  Tue, 17 Oct 2006 19:06:43 +0100
+
+telepathy-gabble (0.3.0-1) unstable; urgency=low
+
+  * New upstream version.
+  * Add missing libloudmouth1-dev build-dependency.
+
+ -- Dafydd Harries <daf@debian.org>  Tue,  1 Aug 2006 17:49:59 +0100
+
+telepathy-gabble (0.1.42-1) unstable; urgency=low
+
+  * New upstream version.
+  * Provide telepathy-connection-manager virtual package.
+
+ -- Dafydd Harries <daf@debian.org>  Thu, 13 Jul 2006 18:29:35 +0100
+
+telepathy-gabble (0.1.37-1) unstable; urgency=low
+
+  * Initial package.
+
+ -- Dafydd Harries <daf@debian.org>  Fri,  9 Jun 2006 17:53:49 +0100

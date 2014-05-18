@@ -1,0 +1,11 @@
+/*.debhelper
+/*.substvars
+/cdbs-install-list
+/cdbs-package-list
+/files
+/stamp-autotools-files
+/stamp-makefile-build
+/stamp-patched
+/telepathy-gabble
+/telepathy-gabble-dbg
+/tmp
