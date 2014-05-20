@@ -1,3 +1,18 @@
+telepathy-gabble (0.8.15-0maemo1) fremantle; urgency=low
+
+  * Move some [un]{subscribe,publish} logic to Roster
+  * Don't unblock contacts if they're removed from stored
+      Fix: Blocked contacts get removed if they are removed from stored
+      Bug: https://bugs.freedesktop.org/show_bug.cgi?id=20597
+  * Ignore google:jingleinfo pushes from contacts
+      Fix: Attacker could intercept, obstruct or modify the user's audio and video calls
+      Bug: https://bugs.freedesktop.org/show_bug.cgi?id=34048
+  * Ignore error Media.StreamHandler::Error: Invalid remote candidates passed
+      Fix: Jingle audio and video calls are disconnected after few seconds
+      Bug: https://bugs.freedesktop.org/show_bug.cgi?id=40323
+
+ -- Pali Rohár <pali.rohar@gmail.com>  Tue, 20 May 2014 22:13:26 +0200
+
 telepathy-gabble (0.8.13-0maemo3+0m5) fremantle; urgency=low
 
   * This entry has been added by BIFH queue processor
