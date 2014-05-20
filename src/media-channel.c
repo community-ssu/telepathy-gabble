@@ -2488,6 +2488,13 @@ stream_error_cb (GabbleMediaStream *stream,
   GList *contents;
   guint id;
 
+  /* Ignore error: Invalid remote candidates passed
+   * This error is sent by Google Web Client for every voice call
+   * and if is not ignored voice call is terminated after few seconds
+   */
+  if (errno == 6)
+    return;
+
   /* emit signal */
   g_object_get (stream, "id", &id, NULL);
   tp_svc_channel_type_streamed_media_emit_stream_error (chan, id, errno,
